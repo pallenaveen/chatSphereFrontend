@@ -1,0 +1,726 @@
+/* ==========================================================
+   AUTHENTIC WHATSAPP DESKTOP DRAWER STYLING (LIGHT & DARK)
+   ========================================================== */
+
+/* Drawer Backdrop Overlay */
+.group-drawer-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(11, 20, 26, 0.45);
+  backdrop-filter: blur(2px);
+  z-index: 2000;
+  display: flex;
+  justify-content: flex-end;
+  animation: drawerFadeIn 0.2s ease-out;
+}
+
+@keyframes drawerFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Slide Drawer Container */
+.group-drawer-content {
+  width: 100%;
+  max-width: 420px;
+  height: 100%;
+  background-color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  box-shadow: -6px 0 24px rgba(0, 0, 0, 0.18);
+  overflow-y: auto;
+  animation: drawerSlideIn 0.25s cubic-bezier(0.1, 0.9, 0.2, 1);
+}
+
+@keyframes drawerSlideIn {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+/* Mobile Screen Full Width Fix */
+@media (max-width: 600px) {
+  .group-drawer-content {
+    max-width: 100%;
+  }
+}
+
+.group-drawer-header {
+  height: 60px;
+  min-height: 60px;
+  padding: 0 20px;
+  background-color: #f0f2f5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #e9edef;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.group-drawer-header h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #111b21;
+  margin: 0;
+}
+
+.drawer-close-btn {
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  color: #54656f;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+}
+
+.drawer-close-btn:hover {
+  background-color: #e9edef;
+  color: #111b21;
+}
+
+/* Banner Profile Picture Section */
+.group-profile-banner {
+  padding: 28px 20px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  background-color: #ffffff;
+}
+
+.group-profile-avatar-wrapper {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #00a884, #008069);
+  color: #ffffff;
+  font-size: 42px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 4px 14px rgba(0, 168, 132, 0.25);
+  margin-bottom: 14px;
+}
+
+.group-profile-avatar-wrapper.is-admin-clickable {
+  cursor: pointer;
+}
+
+.group-profile-avatar-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.camera-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(11, 20, 26, 0.65);
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 5px 0;
+  text-align: center;
+  backdrop-filter: blur(2px);
+}
+
+.group-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.group-title-row h2 {
+  font-size: 22px;
+  font-weight: 500;
+  color: #111b21;
+  margin: 0;
+  word-break: break-word;
+}
+
+.edit-name-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #54656f;
+  font-size: 16px;
+  padding: 4px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.edit-name-btn:hover {
+  background-color: #f0f2f5;
+  color: #00a884;
+}
+
+.group-rename-form {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.group-rename-form input {
+  padding: 6px 12px;
+  border: 1px solid #00a884;
+  border-radius: 6px;
+  outline: none;
+  font-size: 15px;
+  color: #111b21;
+  background-color: #ffffff;
+}
+
+.group-rename-form .save-btn {
+  background: #00a884;
+  color: #ffffff;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.group-rename-form .cancel-btn {
+  background: #e9edef;
+  color: #54656f;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.group-members-count {
+  font-size: 13.5px;
+  color: #667781;
+}
+
+.drawer-divider {
+  height: 10px;
+  background-color: #f0f2f5;
+  border-top: 1px solid #e9edef;
+  border-bottom: 1px solid #e9edef;
+}
+
+/* Participant List Section */
+.members-list-container {
+  padding: 20px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.members-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.members-header-row h4 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #008069;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.add-participant-btn {
+  background: none;
+  border: none;
+  color: #00a884;
+  font-weight: 600;
+  font-size: 13.5px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background 0.15s;
+}
+
+.add-participant-btn:hover {
+  background-color: #e8f8f5;
+}
+
+.members-scroll-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow-y: auto;
+}
+
+.member-list-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  transition: background 0.15s;
+}
+
+.member-list-item:hover {
+  background-color: #f5f6f8;
+}
+
+.member-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background-color: #00a884;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  overflow: hidden;
+  font-size: 16px;
+}
+
+.member-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.member-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.member-name {
+  font-size: 14.5px;
+  color: #111b21;
+  font-weight: 500;
+}
+
+.admin-badge {
+  font-size: 11.5px;
+  color: #008069;
+  font-weight: 600;
+  margin-top: 1px;
+}
+
+.remove-member-btn {
+  background: none;
+  border: none;
+  color: #ea4335;
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.remove-member-btn:hover {
+  background-color: #fdf2f2;
+}
+
+/* Add Members Sub-Panel */
+.add-members-section {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.add-members-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.add-members-header h4 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #008069;
+  margin: 0;
+}
+
+.back-link-btn {
+  background: none;
+  border: none;
+  color: #54656f;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.add-members-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+  overflow-y: auto;
+  max-height: 380px;
+}
+
+.add-member-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  border: 1px solid #e9edef;
+  transition: all 0.15s ease;
+}
+
+.add-member-item.selected {
+  background-color: #f0fdf4;
+  border-color: #00a884;
+}
+
+.add-member-user-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.small-user-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: #00a884;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  overflow: hidden;
+  font-size: 14px;
+}
+
+.small-user-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.add-member-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.add-member-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #111b21;
+}
+
+.add-member-email {
+  font-size: 12px;
+  color: #667781;
+}
+
+.no-contacts-text {
+  font-size: 13.5px;
+  color: #3b4a54; /* Explicit dark slate color for visibility */
+  text-align: center;
+  padding: 24px 12px;
+  margin: 0;
+}
+
+.drawer-loading-text {
+  font-size: 13.5px;
+  color: #008069;
+  text-align: center;
+  padding: 20px;
+}
+
+.add-members-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid #e9edef;
+}
+
+.add-members-actions .cancel-btn {
+  background: #f0f2f5;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  color: #54656f;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.add-members-actions .submit-btn {
+  background: #00a884;
+  color: #ffffff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.add-members-actions .submit-btn:disabled {
+  background: #aebac1;
+  cursor: not-allowed;
+}
+
+
+/* ==========================================================
+   DARK THEME OVERRIDES (`.chatbox-container.theme-dark` / `.theme-dark`)
+   ========================================================== */
+
+.chatbox-container.theme-dark ~ .group-drawer-overlay .group-drawer-content,
+body.theme-dark .group-drawer-content,
+.theme-dark .group-drawer-content {
+  background-color: #111b21;
+  color: #e9edef;
+}
+
+.chatbox-container.theme-dark ~ .group-drawer-overlay .group-drawer-header,
+body.theme-dark .group-drawer-header,
+.theme-dark .group-drawer-header {
+  background-color: #202c33;
+  border-bottom-color: #222d34;
+}
+
+.chatbox-container.theme-dark ~ .group-drawer-overlay .group-drawer-header h3,
+body.theme-dark .group-drawer-header h3,
+.theme-dark .group-drawer-header h3 {
+  color: #e9edef;
+}
+
+.chatbox-container.theme-dark ~ .group-drawer-overlay .drawer-close-btn,
+body.theme-dark .drawer-close-btn,
+.theme-dark .drawer-close-btn {
+  color: #aebac1;
+}
+
+.chatbox-container.theme-dark ~ .group-drawer-overlay .drawer-close-btn:hover,
+body.theme-dark .drawer-close-btn:hover,
+.theme-dark .drawer-close-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #e9edef;
+}
+
+.chatbox-container.theme-dark ~ .group-drawer-overlay .group-profile-banner,
+body.theme-dark .group-profile-banner,
+.theme-dark .group-profile-banner {
+  background-color: #111b21;
+}
+
+.chatbox-container.theme-dark ~ .group-drawer-overlay .group-title-row h2,
+body.theme-dark .group-title-row h2,
+.theme-dark .group-title-row h2 {
+  color: #e9edef;
+}
+
+.chatbox-container.theme-dark ~ .group-drawer-overlay .edit-name-btn,
+body.theme-dark .edit-name-btn,
+.theme-dark .edit-name-btn {
+  color: #aebac1;
+}
+
+.chatbox-container.theme-dark ~ .group-drawer-overlay .edit-name-btn:hover,
+body.theme-dark .edit-name-btn:hover,
+.theme-dark .edit-name-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #00a884;
+}
+
+.chatbox-container.theme-dark ~ .group-drawer-overlay .group-rename-form input,
+body.theme-dark .group-rename-form input,
+.theme-dark .group-rename-form input {
+  background-color: #202c33;
+  color: #e9edef;
+  border-color: #00a884;
+}
+
+.chatbox-container.theme-dark ~ .group-drawer-overlay .group-rename-form .cancel-btn,
+body.theme-dark .group-rename-form .cancel-btn,
+.theme-dark .group-rename-form .cancel-btn {
+  background-color: #2a3942;
+  color: #aebac1;
+}
+
+.chatbox-container.theme-dark ~ .group-drawer-overlay .group-members-count,
+body.theme-dark .group-members-count,
+.theme-dark .group-members-count {
+  color: #8696a0;
+}
+
+.chatbox-container.theme-dark ~ .group-drawer-overlay .drawer-divider,
+body.theme-dark .drawer-divider,
+.theme-dark .drawer-divider {
+  background-color: #0b141a;
+  border-top-color: #222d34;
+  border-bottom-color: #222d34;
+}
+
+.chatbox-container.theme-dark ~ .group-drawer-overlay .members-header-row h4,
+body.theme-dark .members-header-row h4,
+.theme-dark .members-header-row h4,
+.chatbox-container.theme-dark ~ .group-drawer-overlay .add-members-header h4,
+body.theme-dark .add-members-header h4,
+.theme-dark .add-members-header h4 {
+  color: #00a884;
+}
+
+.chatbox-container.theme-dark ~ .group-drawer-overlay .add-participant-btn:hover,
+body.theme-dark .add-participant-btn:hover,
+.theme-dark .add-participant-btn:hover {
+  background-color: rgba(0, 168, 132, 0.15);
+}
+
+.chatbox-container.theme-dark ~ .group-drawer-overlay .member-list-item:hover,
+body.theme-dark .member-list-item:hover,
+.theme-dark .member-list-item:hover {
+  background-color: #202c33;
+}
+
+.chatbox-container.theme-dark ~ .group-drawer-overlay .member-name,
+body.theme-dark .member-name,
+.theme-dark .member-name,
+.chatbox-container.theme-dark ~ .group-drawer-overlay .add-member-name,
+body.theme-dark .add-member-name,
+.theme-dark .add-member-name {
+  color: #e9edef;
+}
+
+.chatbox-container.theme-dark ~ .group-drawer-overlay .admin-badge,
+body.theme-dark .admin-badge,
+.theme-dark .admin-badge {
+  color: #00a884;
+}
+
+.chatbox-container.theme-dark ~ .group-drawer-overlay .remove-member-btn:hover,
+body.theme-dark .remove-member-btn:hover,
+.theme-dark .remove-member-btn:hover {
+  background-color: rgba(234, 67, 53, 0.15);
+}
+
+.chatbox-container.theme-dark ~ .group-drawer-overlay .back-link-btn,
+body.theme-dark .back-link-btn,
+.theme-dark .back-link-btn {
+  color: #aebac1;
+}
+
+.chatbox-container.theme-dark ~ .group-drawer-overlay .add-member-item,
+body.theme-dark .add-member-item,
+.theme-dark .add-member-item {
+  border-color: #222d34;
+  background-color: #111b21;
+}
+
+.chatbox-container.theme-dark ~ .group-drawer-overlay .add-member-item:hover,
+body.theme-dark .add-member-item:hover,
+.theme-dark .add-member-item:hover {
+  background-color: #202c33;
+}
+
+.chatbox-container.theme-dark ~ .group-drawer-overlay .add-member-item.selected,
+body.theme-dark .add-member-item.selected,
+.theme-dark .add-member-item.selected {
+  background-color: rgba(0, 168, 132, 0.15);
+  border-color: #00a884;
+}
+
+.chatbox-container.theme-dark ~ .group-drawer-overlay .add-member-email,
+body.theme-dark .add-member-email,
+.theme-dark .add-member-email,
+.chatbox-container.theme-dark ~ .group-drawer-overlay .no-contacts-text,
+body.theme-dark .no-contacts-text,
+.theme-dark .no-contacts-text {
+  color: #8696a0;
+}
+
+.chatbox-container.theme-dark ~ .group-drawer-overlay .add-members-actions,
+body.theme-dark .add-members-actions,
+.theme-dark .add-members-actions {
+  border-top-color: #222d34;
+}
+
+.chatbox-container.theme-dark ~ .group-drawer-overlay .add-members-actions .cancel-btn,
+body.theme-dark .add-members-actions .cancel-btn,
+.theme-dark .add-members-actions .cancel-btn {
+  background-color: #202c33;
+  color: #aebac1;
+}
+
+.chatbox-container.theme-dark ~ .group-drawer-overlay .add-members-actions .submit-btn:disabled,
+body.theme-dark .add-members-actions .submit-btn:disabled,
+.theme-dark .add-members-actions .submit-btn:disabled {
+  background-color: #2a3942;
+  color: #8696a0;
+}
+
+/* Light Mode Default Styling for Drawer Details & Placeholders */
+.drawer-description-text {
+  font-size: 14.5px;
+  color: #111b21 !important; /* Crisp dark text for light theme */
+  margin: 0;
+  word-break: break-word;
+}
+
+.drawer-media-placeholder,
+.drawer-media-placeholder p {
+  color: #54656f !important; /* Visible dark grey text for light theme */
+  font-size: 13.5px;
+}
+
+/* Dark Mode Overrides for Drawer Details & Placeholders */
+.chatbox-container.theme-dark ~ .group-drawer-overlay .drawer-description-text,
+body.theme-dark .drawer-description-text,
+.theme-dark .drawer-description-text {
+  color: #e9edef !important; /* Crisp white text for dark theme */
+}
+
+.chatbox-container.theme-dark ~ .group-drawer-overlay .drawer-media-placeholder,
+body.theme-dark .drawer-media-placeholder,
+.theme-dark .drawer-media-placeholder,
+.chatbox-container.theme-dark ~ .group-drawer-overlay .drawer-media-placeholder p,
+body.theme-dark .drawer-media-placeholder p,
+.theme-dark .drawer-media-placeholder p {
+  color: #8696a0 !important;
+}
+
+/* Shared Documents List Styling */
+.shared-doc-item {
+  transition: background 0.15s ease;
+}
+
+.shared-doc-item:hover {
+  background-color: #e9edef !important;
+}
+
+/* Dark Theme Overrides for Shared Documents */
+.chatbox-container.theme-dark ~ .group-drawer-overlay .shared-doc-item,
+body.theme-dark .shared-doc-item,
+.theme-dark .shared-doc-item {
+  background-color: #202c33 !important;
+  border-color: #2a3942 !important;
+}
+
+.chatbox-container.theme-dark ~ .group-drawer-overlay .shared-doc-item:hover,
+body.theme-dark .shared-doc-item:hover,
+.theme-dark .shared-doc-item:hover {
+  background-color: #2a3942 !important;
+}

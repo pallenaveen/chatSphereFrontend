@@ -1,0 +1,198 @@
+/* ==========================================================
+   MODERN WHATSAPP-STYLE NAVBAR STYLING (DUAL THEME)
+   ========================================================== */
+
+.navbar {
+  position: relative;
+  z-index: 100;
+  display: flex;
+  width: 100%;
+  min-height: 64px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 0 clamp(16px, 3vw, 32px);
+  background: #ffffff;
+  border-bottom: 1px solid #e9edef;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  box-sizing: border-box;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.navbar-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+  color: #111b21;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+
+/* App Logo Icon Badge */
+.navbar-brand::before {
+  display: flex;
+  width: 38px;
+  height: 38px;
+  flex: 0 0 38px;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  background: linear-gradient(135deg, #00a884, #008069);
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(0, 168, 132, 0.3);
+  content: "💬";
+  font-size: 16px;
+}
+
+.navbar-user-section {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.navbar-username {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #667781;
+  font-size: 13.5px;
+  white-space: nowrap;
+}
+
+.navbar-username strong {
+  color: #111b21;
+  font-size: 14px;
+  font-weight: 600;
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Clean, Modern Logout Button */
+.navbar .logout-btn {
+  display: inline-flex;
+  min-height: 36px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 14px;
+  color: #b42318;
+  background: #fef2f2;
+  border: 1px solid rgba(220, 38, 38, 0.2);
+  border-radius: 18px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.navbar .logout-btn:hover {
+  color: #ffffff;
+  background: #dc2626;
+  border-color: #dc2626;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.25);
+  transform: translateY(-1px);
+}
+
+.navbar .logout-btn:active {
+  transform: translateY(0);
+}
+
+.navbar .logout-btn:focus-visible {
+  outline: 2px solid rgba(220, 38, 38, 0.4);
+  outline-offset: 2px;
+}
+
+/* ==========================================================
+   DARK THEME OVERRIDES (.theme-dark OR MAIN DARK CONTAINER)
+   ========================================================== */
+
+.chat-page-container.theme-dark .navbar,
+.theme-dark .navbar {
+  background-color: #202c33;
+  border-bottom-color: #222d34;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.chat-page-container.theme-dark .navbar-brand,
+.theme-dark .navbar-brand {
+  color: #e9edef;
+}
+
+.chat-page-container.theme-dark .navbar-username,
+.theme-dark .navbar-username {
+  color: #8696a0;
+}
+
+.chat-page-container.theme-dark .navbar-username strong,
+.theme-dark .navbar-username strong {
+  color: #e9edef;
+}
+
+.chat-page-container.theme-dark .navbar .logout-btn,
+.theme-dark .navbar .logout-btn {
+  color: #ff8a80;
+  background: rgba(220, 38, 38, 0.15);
+  border-color: rgba(255, 138, 128, 0.3);
+}
+
+.chat-page-container.theme-dark .navbar .logout-btn:hover,
+.theme-dark .navbar .logout-btn:hover {
+  color: #ffffff;
+  background: #dc2626;
+  border-color: #dc2626;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
+}
+
+/* ==========================================================
+   RESPONSIVE MOBILE BREAKPOINTS FOR NAVBAR
+   ========================================================== */
+
+@media (max-width: 520px) {
+  .navbar {
+    min-height: 56px;
+    gap: 10px;
+    padding: 0 12px;
+    padding-top: max(0px, env(safe-area-inset-top));
+  }
+
+  .navbar-brand {
+    gap: 8px;
+    font-size: 16px;
+  }
+
+  .navbar-brand::before {
+    width: 32px;
+    height: 32px;
+    flex-basis: 32px;
+    font-size: 14px;
+  }
+
+  .navbar-user-section {
+    gap: 10px;
+  }
+
+  .navbar-username {
+    max-width: 35vw;
+    font-size: 12px;
+  }
+
+  .navbar-username strong {
+    font-size: 12.5px;
+  }
+
+  .navbar .logout-btn {
+    min-height: 32px;
+    padding: 0 10px;
+    font-size: 12px;
+    border-radius: 14px;
+  }
+}
+
+@media (max-width: 360px) {
+  .navbar-username {
+    display: none;
+  }
+}

@@ -1,0 +1,393 @@
+/* Fixed CSS Reset */
+* {
+  box-sizing: border-box;
+}
+
+/* Screen Wrapper with Background Image Overlay */
+.auth-screen {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  width: 100vw;
+  padding: 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  
+  /* Semi-transparent dark overlay over background graphic */
+  background: linear-gradient(rgba(10, 17, 40, 0.65), rgba(10, 17, 40, 0.65)),
+              url('../assets/image.jpg') no-repeat center center / cover;
+}
+
+/* Outer Container with Modern Glassmorphism effect */
+.auth-card-wrapper {
+  display: flex;
+  width: 100%;
+  max-width: 920px;
+  min-height: 540px;
+  
+  /* Translucent Glass Effect */
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  
+  border-radius: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+  padding: 16px;
+  margin: auto;
+}
+
+/* Left Panel - Inputs & Controls */
+.auth-left-panel {
+  flex: 1;
+  padding: 30px 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+}
+
+.brand-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.chat-icon {
+  font-size: 28px;
+}
+
+.brand-header h2 {
+  margin: 0;
+  font-size: 22px;
+  color: #0f172a;
+  font-weight: 700;
+}
+
+/* Segmented Toggle Tabs */
+.auth-toggle-tabs {
+  display: flex;
+  background-color: rgba(226, 232, 240, 0.6);
+  padding: 4px;
+  border-radius: 12px;
+  margin-bottom: 25px;
+}
+
+.toggle-tab {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  font-weight: 600;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.toggle-tab.active {
+  background-color: #ffffff;
+  color: #00a884; /* Updated to match green WhatsApp theme */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.auth-welcome h3 {
+  margin: 0 0 6px 0;
+  font-size: 24px;
+  color: #0f172a;
+}
+
+.auth-welcome p {
+  margin: 0 0 20px 0;
+  color: #64748b;
+  font-size: 14px;
+}
+
+/* Input Fields */
+.auth-form-body .input-group {
+  margin-bottom: 16px;
+}
+
+.auth-form-body label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+  margin-bottom: 6px;
+}
+
+.auth-form-body input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  font-size: 14px;
+  outline: none;
+  background-color: rgba(248, 250, 252, 0.8);
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.auth-form-body input:focus {
+  border-color: #00a884;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(0, 168, 132, 0.15);
+}
+
+/* Main Action Button matching WhatsApp Green Theme */
+.auth-primary-btn {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, #00a884, #008069);
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 10px;
+  box-shadow: 0 4px 14px rgba(0, 168, 132, 0.3);
+  transition: all 0.2s ease;
+}
+
+.auth-primary-btn:hover {
+  background: linear-gradient(135deg, #008069, #006653);
+  box-shadow: 0 6px 18px rgba(0, 168, 132, 0.4);
+}
+
+.auth-primary-btn:active {
+  transform: scale(0.98);
+}
+
+.error-badge {
+  background-color: #fef2f2;
+  color: #dc2626;
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 13px;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+/* Right Panel - Chat Visuals */
+.auth-right-panel {
+  flex: 1;
+  background: linear-gradient(135deg, #0f172a 0%, #112e27 50%, #00a884 100%);
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 40px;
+  color: #ffffff;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Chat Visual Elements */
+.hero-content {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 15px;
+}
+
+.floating-chat-bubble {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  padding: 14px 20px;
+  border-radius: 16px;
+  font-size: 14px;
+  max-width: 85%;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.bubble-1 {
+  align-self: flex-start;
+  border-bottom-left-radius: 4px;
+}
+
+.bubble-2 {
+  align-self: flex-end;
+  background: rgba(255, 255, 255, 0.25);
+  border-bottom-right-radius: 4px;
+}
+
+.hero-text-overlay {
+  margin-top: auto;
+}
+
+.hero-text-overlay h3 {
+  margin: 0 0 6px 0;
+  font-size: 22px;
+}
+
+.hero-text-overlay p {
+  margin: 0;
+  font-size: 14px;
+  opacity: 0.85;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 820px) {
+  .auth-card-wrapper {
+    max-width: 440px;
+    min-height: auto;
+  }
+
+  .auth-left-panel {
+    padding: 24px 20px;
+  }
+
+  .auth-right-panel {
+    display: none;
+  }
+}
+
+.auth-screen {
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  align-items: center;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: max(20px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(20px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+  background:
+    linear-gradient(135deg, rgba(7, 94, 84, 0.76), rgba(0, 128, 105, 0.68)),
+    url('../assets/image.jpg') center / cover no-repeat;
+}
+
+.auth-card-wrapper {
+  max-width: 980px;
+  min-height: 560px;
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: 24px;
+  box-shadow: 0 28px 80px rgba(5, 48, 43, 0.28);
+}
+
+.auth-left-panel {
+  min-width: 0;
+  padding: clamp(24px, 4vw, 48px);
+}
+
+.brand-header h2 {
+  color: #075e54;
+  letter-spacing: -0.04em;
+}
+
+.auth-toggle-tabs {
+  background: #edf2f3;
+}
+
+.toggle-tab {
+  min-height: 42px;
+  color: #667781;
+}
+
+.toggle-tab.active {
+  color: #008069;
+}
+
+.auth-welcome h3 {
+  color: #111b21;
+  letter-spacing: -0.035em;
+}
+
+.auth-welcome p {
+  color: #667781;
+  line-height: 1.55;
+}
+
+.auth-form-body label {
+  color: #3b4a54;
+}
+
+.auth-form-body input {
+  min-height: 46px;
+  color: #111b21;
+  background: #f7f8fa;
+  border-color: #d9e1e4;
+  border-radius: 9px;
+}
+
+.auth-form-body input:focus {
+  border-color: #00a884;
+  box-shadow: 0 0 0 3px rgba(0, 168, 132, 0.14);
+}
+
+.auth-primary-btn {
+  min-height: 48px;
+  background: #008069;
+  border-radius: 9px;
+  box-shadow: 0 6px 16px rgba(0, 128, 105, 0.22);
+}
+
+.auth-primary-btn:hover {
+  background: #075e54;
+  box-shadow: 0 8px 20px rgba(7, 94, 84, 0.25);
+}
+
+.error-badge {
+  color: #b42318;
+  background: #fff1f0;
+  border: 1px solid #ffd6d2;
+  line-height: 1.45;
+}
+
+.auth-right-panel {
+  background: linear-gradient(145deg, #075e54 0%, #008069 58%, #00a884 100%);
+  border-radius: 17px;
+}
+
+.floating-chat-bubble {
+  background: rgba(255, 255, 255, 0.16);
+  border-color: rgba(255, 255, 255, 0.24);
+}
+
+@media (max-width: 820px) {
+  .auth-card-wrapper {
+    width: min(100%, 460px);
+    max-width: 460px;
+    min-height: 0;
+    padding: 0;
+    border-radius: 18px;
+  }
+
+  .auth-left-panel {
+    padding: clamp(24px, 7vw, 36px);
+  }
+}
+
+@media (max-width: 420px) {
+  .auth-screen {
+    align-items: flex-start;
+    padding-right: max(12px, env(safe-area-inset-right));
+    padding-left: max(12px, env(safe-area-inset-left));
+  }
+
+  .auth-left-panel {
+    padding: 24px 20px;
+  }
+
+  .auth-toggle-tabs {
+    margin-bottom: 20px;
+  }
+
+  .toggle-tab {
+    padding: 9px 6px;
+    font-size: 13px;
+  }
+}
+
+@media (max-height: 620px) and (min-width: 821px) {
+  .auth-screen {
+    align-items: flex-start;
+  }
+}
+
+
