@@ -6,6 +6,8 @@ import '../styles/ChatBox.css';
 import { playNotificationSound } from '../utils/sound';
 import GroupInfoDrawer from './GroupInfoDrawer';
 
+const getMessageCacheKey = (userId, conversationId) => `messages_${userId}_${conversationId}`;
+
 export default function ChatBox({ socket, selectedChat, setSelectedChat, chats = [], setChats, onlineUsers = [], chatTheme, setChatTheme, onOpenProfile }) {
   const { currentUser } = useAuth();
   const [messages, setMessages] = useState([]);
@@ -50,6 +52,7 @@ export default function ChatBox({ socket, selectedChat, setSelectedChat, chats =
   const messagesEndRef = useRef(null);
   const selectedChatRef = useRef(selectedChat);
   const typingTimeoutRef = useRef(null);
+  const remoteTypingTimeoutRef = useRef(null);
   const fileInputRef = useRef(null);
   const bgInputRef = useRef(null);
 
@@ -166,6 +169,7 @@ export default function ChatBox({ socket, selectedChat, setSelectedChat, chats =
 
     setIsTyping(false);
     setTypingUser('');
+    if (remoteTypingTimeoutRef.current) clearTimeout(remoteTypingTimeoutRef.current);
     setActiveMenuId(null);
     setEditingMessageId(null);
     setSelectedAttachment(null);
@@ -174,7 +178,7 @@ export default function ChatBox({ socket, selectedChat, setSelectedChat, chats =
     setShowChatSettings(false);
     setIsGroupInfoOpen(false);
 
-    const cacheKey = `messages_${activeChatId}`;
+    const cacheKey = getMessageCacheKey(currentUserId, activeChatId);
     const cachedMessages = sessionStorage.getItem(cacheKey);
     if (cachedMessages) {
       try {
@@ -231,7 +235,12 @@ export default function ChatBox({ socket, selectedChat, setSelectedChat, chats =
     if (!socket) return;
 
     const handleReceiveMessage = (incomingMsg) => {
-      playNotificationSound();
+      const senderId = extractId(incomingMsg.sender);
+      if (senderId !== currentUserId) {
+        playNotificationSound();
+        API.put(`/messages/${incomingMsg._id}/delivered`)
+          .catch((error) => console.error('Failed to mark message delivered:', error));
+      }
 
       const activeChat = selectedChatRef.current;
       const incomingChatId = extractId(incomingMsg.conversationId?._id || incomingMsg.conversationId);
@@ -241,7 +250,7 @@ export default function ChatBox({ socket, selectedChat, setSelectedChat, chats =
         setMessages((prev) => {
           if (prev.some((msg) => msg._id === incomingMsg._id)) return prev;
           const updated = [...prev, incomingMsg];
-          safeSetSessionStorage(`messages_${currentActiveId}`, JSON.stringify(updated));
+          safeSetSessionStorage(getMessageCacheKey(currentUserId, currentActiveId), JSON.stringify(updated));
           return updated;
         });
         setIsTyping(false);
@@ -251,14 +260,10 @@ export default function ChatBox({ socket, selectedChat, setSelectedChat, chats =
         const container = document.querySelector('.chat-page-container');
         const isChatVisible = !isMobileScreen || (container && container.classList.contains('chat-selected'));
 
-        if (isChatVisible) {
+        if (isChatVisible && senderId !== currentUserId) {
           API.put(`/chats/read/${currentActiveId}`).catch(err => console.error(err));
-          socket.emit('mark_chat_as_read', {
-            conversationId: currentActiveId,
-            userId: currentUserId,
-          });
         }
-      } else {
+      } else if (senderId !== currentUserId) {
         window.dispatchEvent(
           new CustomEvent('unread_message_received', {
             detail: { chatId: incomingChatId, message: incomingMsg },
@@ -267,7 +272,7 @@ export default function ChatBox({ socket, selectedChat, setSelectedChat, chats =
       }
     };
 
-    const handleChatMarkedRead = ({ conversationId, userId }) => {
+    const handleChatMarkedRead = ({ conversationId, userId, messageId }) => {
       const activeChat = selectedChatRef.current;
       const currentActiveId = extractId(activeChat);
       const incomingConvId = extractId(conversationId);
@@ -278,20 +283,37 @@ export default function ChatBox({ socket, selectedChat, setSelectedChat, chats =
             const currentReadBy = (msg.readBy || []).map(id => extractId(id));
             const newUserId = extractId(userId);
 
-            if (!currentReadBy.includes(newUserId)) {
+            if (
+              extractId(msg.sender) !== newUserId &&
+              (!messageId || msg._id === messageId) &&
+              !currentReadBy.includes(newUserId)
+            ) {
               return {
                 ...msg,
-                isRead: true,
-                status: 'read',
-                readBy: [...(msg.readBy || []), userId]
+                readBy: [...(msg.readBy || []), newUserId]
               };
             }
             return msg;
           });
-          safeSetSessionStorage(`messages_${currentActiveId}`, JSON.stringify(updated));
+          safeSetSessionStorage(getMessageCacheKey(currentUserId, currentActiveId), JSON.stringify(updated));
           return updated;
         });
       }
+    };
+
+    const handleMessageDelivered = ({ messageId, conversationId, userId }) => {
+      const currentActiveId = extractId(selectedChatRef.current);
+      if (currentActiveId !== extractId(conversationId)) return;
+
+      setMessages((previousMessages) => {
+        const updatedMessages = previousMessages.map((message) => (
+          message._id === messageId
+            ? { ...message, deliveredTo: [...new Set([...(message.deliveredTo || []).map(extractId), extractId(userId)])] }
+            : message
+        ));
+        safeSetSessionStorage(getMessageCacheKey(currentUserId, currentActiveId), JSON.stringify(updatedMessages));
+        return updatedMessages;
+      });
     };
 
     const handleMessageEdited = (updatedMsg) => {
@@ -301,7 +323,7 @@ export default function ChatBox({ socket, selectedChat, setSelectedChat, chats =
       setMessages((prev) => {
         const updated = prev.map((msg) => (msg._id === updatedMsg._id ? updatedMsg : msg));
         if (currentActiveId) {
-          safeSetSessionStorage(`messages_${currentActiveId}`, JSON.stringify(updated));
+          safeSetSessionStorage(getMessageCacheKey(currentUserId, currentActiveId), JSON.stringify(updated));
         }
         return updated;
       });
@@ -314,7 +336,7 @@ export default function ChatBox({ socket, selectedChat, setSelectedChat, chats =
       setMessages((prev) => {
         const updated = prev.filter((msg) => msg._id !== messageId);
         if (currentActiveId) {
-          safeSetSessionStorage(`messages_${currentActiveId}`, JSON.stringify(updated));
+          safeSetSessionStorage(getMessageCacheKey(currentUserId, currentActiveId), JSON.stringify(updated));
         }
         return updated;
       });
@@ -327,6 +349,11 @@ export default function ChatBox({ socket, selectedChat, setSelectedChat, chats =
       if (currentActiveId === room) {
         setIsTyping(true);
         setTypingUser(username || 'Someone');
+        if (remoteTypingTimeoutRef.current) clearTimeout(remoteTypingTimeoutRef.current);
+        remoteTypingTimeoutRef.current = setTimeout(() => {
+          setIsTyping(false);
+          setTypingUser('');
+        }, 4000);
       }
     };
 
@@ -337,6 +364,7 @@ export default function ChatBox({ socket, selectedChat, setSelectedChat, chats =
       if (currentActiveId === room) {
         setIsTyping(false);
         setTypingUser('');
+        if (remoteTypingTimeoutRef.current) clearTimeout(remoteTypingTimeoutRef.current);
       }
     };
 
@@ -355,6 +383,7 @@ export default function ChatBox({ socket, selectedChat, setSelectedChat, chats =
 
     socket.on('receive_message', handleReceiveMessage);
     socket.on('chat_marked_read', handleChatMarkedRead);
+    socket.on('message_delivery_update', handleMessageDelivered);
     socket.on('message_edited', handleMessageEdited);
     socket.on('message_deleted', handleMessageDeleted);
     socket.on('typing', handleTyping);
@@ -364,11 +393,13 @@ export default function ChatBox({ socket, selectedChat, setSelectedChat, chats =
     return () => {
       socket.off('receive_message', handleReceiveMessage);
       socket.off('chat_marked_read', handleChatMarkedRead);
+      socket.off('message_delivery_update', handleMessageDelivered);
       socket.off('message_edited', handleMessageEdited);
       socket.off('message_deleted', handleMessageDeleted);
       socket.off('typing', handleTyping);
       socket.off('stop_typing', handleStopTyping);
       socket.off('user_status_change', handleUserStatusChange);
+      if (remoteTypingTimeoutRef.current) clearTimeout(remoteTypingTimeoutRef.current);
     };
   }, [socket, currentUserId]);
 
@@ -521,7 +552,7 @@ export default function ChatBox({ socket, selectedChat, setSelectedChat, chats =
 
       setMessages((prev) => {
         const updated = [...prev, data];
-        safeSetSessionStorage(`messages_${activeChatId}`, JSON.stringify(updated));
+        safeSetSessionStorage(getMessageCacheKey(currentUserId, activeChatId), JSON.stringify(updated));
         return updated;
       });
 
@@ -529,7 +560,6 @@ export default function ChatBox({ socket, selectedChat, setSelectedChat, chats =
       setSelectedAttachment(null);
       setAudioBlobUrl(null);
 
-      if (socket) socket.emit('send_message', data);
     } catch (err) {
       console.error('Failed to send message:', err);
     }
@@ -540,10 +570,9 @@ export default function ChatBox({ socket, selectedChat, setSelectedChat, chats =
       await API.delete(`/messages/${messageId}`);
       setMessages((prev) => {
         const updated = prev.filter((msg) => msg._id !== messageId);
-        safeSetSessionStorage(`messages_${activeChatId}`, JSON.stringify(updated));
+        safeSetSessionStorage(getMessageCacheKey(currentUserId, activeChatId), JSON.stringify(updated));
         return updated;
       });
-      socket?.emit('delete_message', { messageId, conversationId: activeChatId });
       setActiveMenuId(null);
     } catch (err) {
       console.error('Failed to delete message:', err);
@@ -567,11 +596,10 @@ export default function ChatBox({ socket, selectedChat, setSelectedChat, chats =
           }
           return msg;
         });
-        safeSetSessionStorage(`messages_${activeChatId}`, JSON.stringify(updated));
+        safeSetSessionStorage(getMessageCacheKey(currentUserId, activeChatId), JSON.stringify(updated));
         return updated;
       });
 
-      socket?.emit('edit_message', data);
       setEditingMessageId(null);
       setEditContent('');
     } catch (err) {
@@ -680,6 +708,10 @@ export default function ChatBox({ socket, selectedChat, setSelectedChat, chats =
       return <span className="message-ticks">✓✓</span>; // Grey Double Ticks if partially read
     }
 
+    if (msg.deliveredTo?.some((id) => extractId(id) !== currentUserId)) {
+      return <span className="message-ticks">✓✓</span>;
+    }
+
     return <span className="message-ticks">✓</span>; // Single Grey Tick
   };
 
@@ -688,7 +720,7 @@ export default function ChatBox({ socket, selectedChat, setSelectedChat, chats =
       <div className={`chatbox-container no-chat-selected theme-${chatTheme}`}>
         <div className="welcome-box">
           <h2>WebChat Messenger</h2>
-          <p>Select a conversation from the sidebar or search for a friend to start chatting securely in real-time.</p>
+          <p>Select a conversation from the sidebar or search for a friend to start chatting in real time.</p>
         </div>
       </div>
     );
@@ -742,8 +774,8 @@ export default function ChatBox({ socket, selectedChat, setSelectedChat, chats =
           aria-label="Back to conversations"
           title="Back to conversations"
           onClick={() => {
-            sessionStorage.removeItem('activeChat');
-            localStorage.removeItem('activeChat');
+            sessionStorage.removeItem(`activeChat_${currentUserId}`);
+            localStorage.removeItem(`activeChat_${currentUserId}`);
             setSelectedChat(null);
           }}
         >

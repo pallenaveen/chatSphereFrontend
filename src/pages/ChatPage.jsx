@@ -9,11 +9,14 @@ import CallModal from '../components/CallModal';
 import SettingsModal from '../components/SettingsModal';
 import CallHistoryModal from '../components/CallHistoryModal'; // 📞 Import Call History Modal
 import API from '../api/axios';
+import { getStoredToken } from '../api/axios';
 import { SERVER_URL } from '../config';
 import '../styles/ChatPage.css';
 
 export default function ChatPage() {
   const { currentUser } = useAuth();
+  const accountId = currentUser?._id || currentUser?.id || currentUser?.user?._id || currentUser?.user?.id;
+  const activeChatStorageKey = accountId ? `activeChat_${accountId}` : null;
   const [socket, setSocket] = useState(null);
   const [chats, setChats] = useState([]);
   const [chatTheme, setChatTheme] = useState(() => (
@@ -22,7 +25,9 @@ export default function ChatPage() {
   
   const [selectedChat, setSelectedChat] = useState(() => {
     try {
-      const saved = sessionStorage.getItem('activeChat') || localStorage.getItem('activeChat');
+      const saved = activeChatStorageKey
+        ? sessionStorage.getItem(activeChatStorageKey) || localStorage.getItem(activeChatStorageKey)
+        : null;
       return saved ? JSON.parse(saved) : null;
     } catch (e) {
       console.error('Failed to load active chat from storage:', e);
@@ -73,7 +78,7 @@ export default function ChatPage() {
   // Safe storage sync preventing QuotaExceededError
   useEffect(() => {
     try {
-      if (selectedChat) {
+      if (selectedChat && activeChatStorageKey) {
         const lightChat = {
           _id: selectedChat._id,
           isGroup: selectedChat.isGroup,
@@ -81,16 +86,16 @@ export default function ChatPage() {
           members: selectedChat.members?.map(m => typeof m === 'string' ? m : (m._id || m.id))
         };
         const serialized = JSON.stringify(lightChat);
-        sessionStorage.setItem('activeChat', serialized);
-        localStorage.setItem('activeChat', serialized);
-      } else {
-        sessionStorage.removeItem('activeChat');
-        localStorage.removeItem('activeChat');
+        sessionStorage.setItem(activeChatStorageKey, serialized);
+        localStorage.setItem(activeChatStorageKey, serialized);
+      } else if (activeChatStorageKey) {
+        sessionStorage.removeItem(activeChatStorageKey);
+        localStorage.removeItem(activeChatStorageKey);
       }
     } catch (e) {
       console.warn('Storage quota skipped for active chat payload');
     }
-  }, [selectedChat]);
+  }, [selectedChat, activeChatStorageKey]);
 // Handle Initiating Voice / Video Calls
   const handleStartCall = (targetUserId, callType = 'audio', targetAvatar = '', targetName = '') => {
     if (!socket || !targetUserId || activeCall) return;
@@ -114,7 +119,9 @@ export default function ChatPage() {
   useEffect(() => {
     if (!currentUserId) return;
 
-    const newSocket = io(SERVER_URL);
+    const newSocket = io(SERVER_URL, {
+      auth: { token: getStoredToken() },
+    });
     setSocket(newSocket);
 
     newSocket.on('connect', () => {
@@ -130,6 +137,12 @@ export default function ChatPage() {
       const senderId = extractId(newMessage.sender);
       const activeChatId = extractId(selectedChatRef.current?._id || selectedChatRef.current);
       const messageChatId = extractId(newMessage.conversationId?._id || newMessage.conversationId || newMessage.chat?._id || newMessage.chat);
+
+      setChats((previousChats) => previousChats
+        .map((chat) => extractId(chat._id) === messageChatId
+          ? { ...chat, latestMessage: newMessage, updatedAt: newMessage.createdAt }
+          : chat)
+        .sort((first, second) => new Date(second.updatedAt || 0) - new Date(first.updatedAt || 0)));
 
       if (activeChatId !== messageChatId && senderId !== currentUserId) {
         const senderName = newMessage.sender?.username || newMessage.sender?.name || 'New Message';
@@ -169,6 +182,32 @@ export default function ChatPage() {
         if (prev.some((c) => extractId(c._id) === extractId(newGroupChat._id))) return prev;
         return [newGroupChat, ...prev];
       });
+    };
+
+    const handleConversationCreated = (newConversation) => {
+      setChats((previousChats) => {
+        if (previousChats.some((chat) => extractId(chat._id) === extractId(newConversation._id))) {
+          return previousChats;
+        }
+        return [newConversation, ...previousChats];
+      });
+    };
+
+    const handleConversationUpdated = ({ conversationId, latestMessage, updatedAt }) => {
+      setChats((previousChats) => previousChats
+        .map((chat) => extractId(chat._id) === extractId(conversationId)
+          ? { ...chat, latestMessage, updatedAt }
+          : chat)
+        .sort((first, second) => new Date(second.updatedAt || 0) - new Date(first.updatedAt || 0)));
+    };
+
+    const handleChatMarkedRead = ({ conversationId, userId }) => {
+      if (extractId(userId) === currentUserId) {
+        setUnreadCounts((previousCounts) => ({
+          ...previousCounts,
+          [extractId(conversationId)]: 0,
+        }));
+      }
     };
 
     const handleProfileUpdated = (updatedProfile) => {
@@ -212,6 +251,9 @@ export default function ChatPage() {
     newSocket.on('receive_message', handleIncomingMessage);
     newSocket.on('group_updated', handleGroupUpdated);
     newSocket.on('group_created', handleGroupCreated);
+    newSocket.on('conversation_created', handleConversationCreated);
+    newSocket.on('conversation_updated', handleConversationUpdated);
+    newSocket.on('chat_marked_read', handleChatMarkedRead);
     newSocket.on('user_profile_updated', handleProfileUpdated);
     newSocket.on('incoming_call', handleIncomingCall);
 
@@ -220,6 +262,9 @@ export default function ChatPage() {
       newSocket.off('receive_message', handleIncomingMessage);
       newSocket.off('group_updated', handleGroupUpdated);
       newSocket.off('group_created', handleGroupCreated);
+      newSocket.off('conversation_created', handleConversationCreated);
+      newSocket.off('conversation_updated', handleConversationUpdated);
+      newSocket.off('chat_marked_read', handleChatMarkedRead);
       newSocket.off('user_profile_updated', handleProfileUpdated);
       newSocket.off('incoming_call', handleIncomingCall);
       newSocket.disconnect();

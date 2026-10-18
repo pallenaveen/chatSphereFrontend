@@ -103,12 +103,11 @@ export default function CreateGroupModal({ isOpen, onClose, chats, setChats, set
                       {user.avatar ? (
                         <img src={user.avatar} alt="Avatar" />
                       ) : (
-                        (user.username || user.email || 'U').charAt(0).toUpperCase()
+                        (user.username || 'U').charAt(0).toUpperCase()
                       )}
                     </div>
                     <div className="user-select-details">
-                      <span className="user-select-name">{user.username || user.email}</span>
-                      <span className="user-select-sub">{user.email}</span>
+                      <span className="user-select-name">{user.username || 'User'}</span>
                     </div>
                     <input 
                       type="checkbox" 

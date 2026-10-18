@@ -302,11 +302,10 @@ export default function GroupInfoDrawer({
                     >
                       <div className="add-member-user-info">
                         <div className="small-user-avatar">
-                          {u.avatar ? <img src={u.avatar} alt="Avatar" /> : (u.username || u.email).charAt(0).toUpperCase()}
+                          {u.avatar ? <img src={u.avatar} alt="Avatar" /> : (u.username || 'U').charAt(0).toUpperCase()}
                         </div>
                         <div className="add-member-details">
                           <span className="add-member-name">{u.username || 'User'}</span>
-                          <span className="add-member-email">{u.email}</span>
                         </div>
                       </div>
                       <input type="checkbox" checked={isChecked} readOnly />

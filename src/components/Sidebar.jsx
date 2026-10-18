@@ -49,11 +49,12 @@ export default function Sidebar({
   };
 
   const currentUserId = extractId(currentUser?.user || currentUser);
+  const cachedChatsKey = `cached_chats_${currentUserId}`;
   const currentUsername = currentUser?.username || currentUser?.user?.username || currentUser?.name || 'User';
   const currentAvatar = currentUser?.avatar || currentUser?.user?.avatar || '';
 
   useEffect(() => {
-    const cachedChats = localStorage.getItem('cached_chats');
+    const cachedChats = localStorage.getItem(cachedChatsKey);
     if (cachedChats) {
       try {
         setChats(JSON.parse(cachedChats));
@@ -61,13 +62,13 @@ export default function Sidebar({
         console.error('Failed to parse cached chats:', e);
       }
     }
-  }, [setChats]);
+  }, [cachedChatsKey, setChats]);
 
   useEffect(() => {
     if (chats.length > 0) {
-      localStorage.setItem('cached_chats', JSON.stringify(chats));
+      localStorage.setItem(cachedChatsKey, JSON.stringify(chats));
     }
-  }, [chats]);
+  }, [cachedChatsKey, chats]);
 
   useEffect(() => {
     const handleNewGroup = (event) => {
@@ -596,7 +597,7 @@ export default function Sidebar({
                     </div>
                     <div className="chat-details">
                       <h4 className="chat-name">{user.username || 'User'}</h4>
-                      <span className="chat-subtext">{user.email}</span>
+                      <span className="chat-subtext">{user.bio || 'Start a conversation'}</span>
                     </div>
                   </div>
                 );
@@ -759,7 +760,7 @@ export default function Sidebar({
             })}
 
             <div className="sidebar-footer-note">
-              <span>🔒 Your personal chats are end-to-end encrypted</span>
+              <span>Chat messages are stored in the app database; end-to-end encryption is not enabled.</span>
             </div>
           </>
         )}

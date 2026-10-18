@@ -1,27 +1,27 @@
 import axios from 'axios';
 import { SERVER_URL } from '../config';
 
+export const getStoredToken = () => {
+  let token = sessionStorage.getItem('token') || localStorage.getItem('token');
+  if (token) return token;
+
+  const userInfoStr = sessionStorage.getItem('userInfo') || localStorage.getItem('userInfo');
+  if (!userInfoStr) return null;
+
+  try {
+    return JSON.parse(userInfoStr)?.token || null;
+  } catch (err) {
+    console.error('Error parsing userInfo from storage:', err);
+    return null;
+  }
+};
+
 const API = axios.create({
   baseURL: `${SERVER_URL}/api`,
 });
 
 API.interceptors.request.use((config) => {
-  // Check for direct token keys first
-  let token = sessionStorage.getItem('token') || localStorage.getItem('token');
-
-  // If not found directly, check inside the stored 'userInfo' object
-  if (!token) {
-    const userInfoStr = sessionStorage.getItem('userInfo') || localStorage.getItem('userInfo');
-    if (userInfoStr) {
-      try {
-        const userInfo = JSON.parse(userInfoStr);
-        token = userInfo?.token;
-      } catch (err) {
-        console.error('Error parsing userInfo from storage:', err);
-      }
-    }
-  }
-
+  const token = getStoredToken();
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }

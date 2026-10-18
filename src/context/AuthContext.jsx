@@ -47,9 +47,25 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logoutUser = () => {
+    const userId = currentUser?._id || currentUser?.id;
+    if (userId) {
+      localStorage.removeItem(`activeChat_${userId}`);
+      localStorage.removeItem(`cached_chats_${userId}`);
+    }
+
+    for (const storage of [localStorage, sessionStorage]) {
+      for (let index = storage.length - 1; index >= 0; index -= 1) {
+        const key = storage.key(index);
+        if (key?.startsWith(`messages_${userId}_`)) {
+          storage.removeItem(key);
+        }
+      }
+    }
+
     localStorage.removeItem('chatUser');
     localStorage.removeItem('userInfo');
     localStorage.removeItem('activeChat');
+    sessionStorage.removeItem(`activeChat_${userId}`);
     localStorage.removeItem('token');
     setCurrentUser(null);
   };
