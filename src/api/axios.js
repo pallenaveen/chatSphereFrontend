@@ -5,7 +5,21 @@ const API = axios.create({
 });
 
 API.interceptors.request.use((config) => {
-  const token = sessionStorage.getItem('token') || localStorage.getItem('token');
+  // Check for direct token keys first
+  let token = sessionStorage.getItem('token') || localStorage.getItem('token');
+
+  // If not found directly, check inside the stored 'userInfo' object
+  if (!token) {
+    const userInfoStr = sessionStorage.getItem('userInfo') || localStorage.getItem('userInfo');
+    if (userInfoStr) {
+      try {
+        const userInfo = JSON.parse(userInfoStr);
+        token = userInfo?.token;
+      } catch (err) {
+        console.error('Error parsing userInfo from storage:', err);
+      }
+    }
+  }
 
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;

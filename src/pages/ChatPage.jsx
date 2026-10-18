@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import io from 'socket.io-client';
 import { useAuth } from '../context/AuthContext';
 import Sidebar from '../components/Sidebar';
@@ -6,6 +6,8 @@ import ChatBox from '../components/ChatBox';
 import CreateGroupModal from '../components/CreateGroupModal';
 import UserProfileDrawer from '../components/UserProfileDrawer';
 import CallModal from '../components/CallModal';
+import SettingsModal from '../components/SettingsModal';
+import CallHistoryModal from '../components/CallHistoryModal'; // 📞 Import Call History Modal
 import API from '../api/axios';
 import '../styles/ChatPage.css';
 
@@ -15,6 +17,9 @@ export default function ChatPage() {
   const { currentUser } = useAuth();
   const [socket, setSocket] = useState(null);
   const [chats, setChats] = useState([]);
+  const [chatTheme, setChatTheme] = useState(() => (
+    localStorage.getItem('chat_theme') === 'dark' ? 'dark' : 'light'
+  ));
   
   const [selectedChat, setSelectedChat] = useState(() => {
     try {
@@ -36,6 +41,8 @@ export default function ChatPage() {
   // Modal & Drawer Visibility States
   const [isGroupModalOpen, setIsGroupModalOpen] = useState(false);
   const [isUserProfileOpen, setIsUserProfileOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isCallHistoryOpen, setIsCallHistoryOpen] = useState(false); // 📞 Call History Modal State
 
   // Close profile drawer automatically when switching conversations
   useEffect(() => {
@@ -55,7 +62,16 @@ export default function ChatPage() {
 
   const currentUserId = extractId(currentUser?.user || currentUser);
 
-  // Safe storage sync preventing QuotaExceededError by omitting heavy base64 strings
+  useEffect(() => {
+    try {
+      localStorage.setItem('chat_theme', chatTheme);
+      sessionStorage.setItem('chat_theme', chatTheme);
+    } catch (err) {
+      console.error('Failed to save chat theme:', err);
+    }
+  }, [chatTheme]);
+
+  // Safe storage sync preventing QuotaExceededError
   useEffect(() => {
     try {
       if (selectedChat) {
@@ -76,27 +92,22 @@ export default function ChatPage() {
       console.warn('Storage quota skipped for active chat payload');
     }
   }, [selectedChat]);
+// Handle Initiating Voice / Video Calls
+  const handleStartCall = (targetUserId, callType = 'audio', targetAvatar = '', targetName = '') => {
+    if (!socket || !targetUserId || activeCall) return;
 
-  // Handle Initiating Voice / Video Calls
-  const handleStartCall = (targetUserId, callType = 'audio') => {
-    if (!socket || !targetUserId) return;
+    const cleanTargetId = typeof targetUserId === 'object' ? (targetUserId._id || targetUserId.id) : targetUserId;
 
-    const callerName = currentUser?.user?.username || currentUser?.username || currentUser?.name || 'User';
-
-    console.log(`📞 Initiating ${callType} call to user:`, targetUserId);
+    const callId = crypto.randomUUID();
 
     setActiveCall({
       isCaller: true,
-      targetUserId,
+      callId,
+      targetUserId: cleanTargetId,
       callType,
+      name: targetName || 'Contact',
+      avatar: targetAvatar,
       status: 'calling',
-    });
-
-    socket.emit('call_user', {
-      userToCall: targetUserId,
-      from: currentUserId,
-      callType,
-      name: callerName
     });
   };
 
@@ -117,8 +128,6 @@ export default function ChatPage() {
     });
 
     const handleIncomingMessage = (newMessage) => {
-      console.log('--> RECEIVED SOCKET MESSAGE:', newMessage);
-
       const senderId = extractId(newMessage.sender);
       const activeChatId = extractId(selectedChatRef.current?._id || selectedChatRef.current);
       const messageChatId = extractId(newMessage.conversationId?._id || newMessage.conversationId || newMessage.chat?._id || newMessage.chat);
@@ -163,44 +172,57 @@ export default function ChatPage() {
       });
     };
 
-    // WebRTC Signaling Event Listeners
-    const handleIncomingCall = (data) => {
-      console.log('📞 Incoming call signal received:', data);
-      setActiveCall({
-        isCaller: false,
-        from: data.from,
-        name: data.name,
-        callType: data.callType,
-        signal: data.signal,
-        status: 'incoming'
+    const handleProfileUpdated = (updatedProfile) => {
+      const updatedUserId = extractId(updatedProfile.userId);
+      const profileFields = Object.fromEntries(
+        Object.entries(updatedProfile).filter(([key]) => key !== 'userId')
+      );
+      const updateChatMembers = (chat) => ({
+        ...chat,
+        members: chat.members?.map((member) => (
+          typeof member === 'object' && extractId(member) === updatedUserId
+            ? { ...member, ...profileFields }
+            : member
+        )),
       });
+
+      setChats((prev) => prev.map(updateChatMembers));
+      setSelectedChat((prev) => (
+        prev?.members?.some((member) => typeof member === 'object' && extractId(member) === updatedUserId)
+          ? updateChatMembers(prev)
+          : prev
+      ));
     };
 
-    const handleCallAccepted = (signal) => {
-      console.log('✅ Call accepted signal received');
-      setActiveCall((prev) => prev ? { ...prev, status: 'connected', signal } : null);
-    };
-
-    const handleCallEnded = () => {
-      console.log('❌ Call ended signal received');
-      setActiveCall(null);
+    const handleIncomingCall = (data) => {
+      setActiveCall((currentCall) => {
+        if (currentCall || !data.callId) return currentCall;
+        return {
+          isCaller: false,
+          callId: data.callId,
+          from: data.from,
+          name: data.name,
+          callType: data.callType,
+          signal: data.signalData || data.signal,
+          avatar: data.avatar,
+          status: 'incoming'
+        };
+      });
     };
 
     newSocket.on('receive_message', handleIncomingMessage);
     newSocket.on('group_updated', handleGroupUpdated);
     newSocket.on('group_created', handleGroupCreated);
+    newSocket.on('user_profile_updated', handleProfileUpdated);
     newSocket.on('incoming_call', handleIncomingCall);
-    newSocket.on('call_accepted', handleCallAccepted);
-    newSocket.on('call_ended', handleCallEnded);
 
     return () => {
       newSocket.off('get_online_users');
       newSocket.off('receive_message', handleIncomingMessage);
       newSocket.off('group_updated', handleGroupUpdated);
       newSocket.off('group_created', handleGroupCreated);
+      newSocket.off('user_profile_updated', handleProfileUpdated);
       newSocket.off('incoming_call', handleIncomingCall);
-      newSocket.off('call_accepted', handleCallAccepted);
-      newSocket.off('call_ended', handleCallEnded);
       newSocket.disconnect();
     };
   }, [currentUserId]);
@@ -210,7 +232,6 @@ export default function ChatPage() {
     const fetchChats = async () => {
       try {
         const { data } = await API.get('/chats');
-        console.log('🔍 DEBUG: Fetched chats from backend:', data);
         setChats(data);
 
         const initialUnread = {};
@@ -239,7 +260,7 @@ export default function ChatPage() {
   }, []);
 
   return (
-    <div className={`chat-page-container ${selectedChat ? 'chat-selected' : ''}`}>
+    <div className={`chat-page-container theme-${chatTheme} ${selectedChat ? 'chat-selected' : ''}`}>
       {notification && (
         <div 
           className="whatsapp-toast-notification"
@@ -276,8 +297,12 @@ export default function ChatPage() {
         onlineUsers={onlineUsers}
         unreadCounts={unreadCounts}
         setUnreadCounts={setUnreadCounts}
+        chatTheme={chatTheme}
+        setChatTheme={setChatTheme}
         onOpenCreateGroup={() => setIsGroupModalOpen(true)}
         onStartCall={handleStartCall}
+        onOpenSettings={() => setIsSettingsOpen(true)}
+        onOpenCallHistory={() => setIsCallHistoryOpen(true)}
       />
 
       <ChatBox
@@ -287,6 +312,8 @@ export default function ChatPage() {
         chats={chats}
         setChats={setChats}
         onlineUsers={onlineUsers}
+        chatTheme={chatTheme}
+        setChatTheme={setChatTheme}
         onOpenProfile={() => setIsUserProfileOpen(true)}
       />
 
@@ -309,6 +336,21 @@ export default function ChatPage() {
         setSelectedChat={setSelectedChat}
         currentUserId={currentUserId}
       />
+
+      {/* Settings Modal for Ringtone Upload */}
+      <SettingsModal
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+      />
+
+      {/* 📞 Call History Modal */}
+      <CallHistoryModal
+        isOpen={isCallHistoryOpen}
+        onClose={() => setIsCallHistoryOpen(false)}
+        onStartCall={handleStartCall}
+        currentUserId={currentUserId}
+      />
+
       {/* Active WebRTC Call Popup Modal */}
       {activeCall && (
         <CallModal

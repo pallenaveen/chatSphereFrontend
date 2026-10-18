@@ -8,7 +8,12 @@ export const AuthProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(() => {
     try {
       const savedUser = localStorage.getItem('chatUser') || localStorage.getItem('userInfo');
-      return savedUser ? JSON.parse(savedUser) : null;
+      if (!savedUser) return null;
+      const parsed = JSON.parse(savedUser);
+      
+      // Normalize: if user data is nested under a 'user' property, extract it or flatten it
+      // so components can consistently access properties like currentUser.avatar or currentUser.username
+      return parsed.user ? { ...parsed.user, token: parsed.token || localStorage.getItem('token') } : parsed;
     } catch (error) {
       console.error('Error parsing user from localStorage:', error);
       return null;
@@ -27,20 +32,25 @@ export const AuthProvider = ({ children }) => {
   }, [currentUser]);
 
   const loginUser = (userData) => {
-    // FIX: Save the token explicitly so Axios requests can authenticate with the backend
     if (userData && userData.token) {
       localStorage.setItem('token', userData.token);
     }
-    localStorage.setItem('chatUser', JSON.stringify(userData));
-    localStorage.setItem('userInfo', JSON.stringify(userData));
-    setCurrentUser(userData);
+    
+    // Normalize user data on login as well
+    const normalizedUser = userData?.user 
+      ? { ...userData.user, token: userData.token } 
+      : userData;
+
+    localStorage.setItem('chatUser', JSON.stringify(normalizedUser));
+    localStorage.setItem('userInfo', JSON.stringify(normalizedUser));
+    setCurrentUser(normalizedUser);
   };
 
   const logoutUser = () => {
     localStorage.removeItem('chatUser');
     localStorage.removeItem('userInfo');
     localStorage.removeItem('activeChat');
-    localStorage.removeItem('token'); // Clear the token on logout
+    localStorage.removeItem('token');
     setCurrentUser(null);
   };
 

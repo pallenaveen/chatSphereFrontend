@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
 import API from '../api/axios';
 import { useAuth } from '../context/AuthContext';
+import { ArrowLeft, Check, Image as ImageIcon, Moon, Sun, X } from 'lucide-react';
 import '../styles/ChatBox.css';
 import { playNotificationSound } from '../utils/sound';
 import GroupInfoDrawer from './GroupInfoDrawer';
 
-export default function ChatBox({ socket, selectedChat, setSelectedChat, chats = [], setChats, onlineUsers = [], onOpenProfile }) {
+export default function ChatBox({ socket, selectedChat, setSelectedChat, chats = [], setChats, onlineUsers = [], chatTheme, setChatTheme, onOpenProfile }) {
   const { currentUser } = useAuth();
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
@@ -26,11 +27,14 @@ export default function ChatBox({ socket, selectedChat, setSelectedChat, chats =
 
   // Chat Header Settings Menu & Theme/Background States
   const [showChatSettings, setShowChatSettings] = useState(false);
-  const [chatTheme, setChatTheme] = useState(() => {
-    return sessionStorage.getItem('chat_theme') || localStorage.getItem('chat_theme') || 'light';
-  });
   const [chatBgImage, setChatBgImage] = useState(() => {
     return sessionStorage.getItem('chat_wallpaper') || localStorage.getItem('chat_wallpaper') || '';
+  });
+  const [wallpaperVisibility, setWallpaperVisibility] = useState(() => {
+    const savedVisibility = Number(localStorage.getItem('chat_wallpaper_visibility'));
+    return Number.isFinite(savedVisibility) && savedVisibility >= 20 && savedVisibility <= 100
+      ? savedVisibility
+      : 85;
   });
 
   // Voice recording states
@@ -53,16 +57,6 @@ export default function ChatBox({ socket, selectedChat, setSelectedChat, chats =
     selectedChatRef.current = selectedChat;
   }, [selectedChat]);
 
-  // Sync theme to storage
-  useEffect(() => {
-    try {
-      sessionStorage.setItem('chat_theme', chatTheme);
-      localStorage.setItem('chat_theme', chatTheme);
-    } catch (e) {
-      console.error('Failed to save chat theme:', e);
-    }
-  }, [chatTheme]);
-
   // Sync background wallpaper to storage
   useEffect(() => {
     try {
@@ -78,6 +72,15 @@ export default function ChatBox({ socket, selectedChat, setSelectedChat, chats =
       alert('Image size is too large for storage.');
     }
   }, [chatBgImage]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('chat_wallpaper_visibility', String(wallpaperVisibility));
+      sessionStorage.setItem('chat_wallpaper_visibility', String(wallpaperVisibility));
+    } catch (err) {
+      console.error('Failed to save wallpaper visibility:', err);
+    }
+  }, [wallpaperVisibility]);
 
   const extractId = (obj) => {
     if (!obj) return '';
@@ -682,7 +685,7 @@ export default function ChatBox({ socket, selectedChat, setSelectedChat, chats =
 
   if (!selectedChat) {
     return (
-      <div className="chatbox-container no-chat-selected">
+      <div className={`chatbox-container no-chat-selected theme-${chatTheme}`}>
         <div className="welcome-box">
           <h2>WebChat Messenger</h2>
           <p>Select a conversation from the sidebar or search for a friend to start chatting securely in real-time.</p>
@@ -736,13 +739,15 @@ export default function ChatBox({ socket, selectedChat, setSelectedChat, chats =
       <div className="chat-header">
         <button 
           className="back-btn" 
+          aria-label="Back to conversations"
+          title="Back to conversations"
           onClick={() => {
             sessionStorage.removeItem('activeChat');
             localStorage.removeItem('activeChat');
             setSelectedChat(null);
           }}
         >
-          ←
+          <ArrowLeft size={20} strokeWidth={2.2} />
         </button>
 
         <div 
@@ -831,37 +836,76 @@ export default function ChatBox({ socket, selectedChat, setSelectedChat, chats =
 
           {showChatSettings && (
             <div className="chat-settings-dropdown" onClick={(e) => e.stopPropagation()}>
-              <div className="chat-settings-section-title">Theme</div>
-              <button 
-                onClick={() => { setChatTheme('light'); setShowChatSettings(false); }}
-                className={`chat-settings-option ${chatTheme === 'light' ? 'selected' : ''}`}
-              >
-                ☀️ Light Theme
-              </button>
-              <button 
-                onClick={() => { setChatTheme('dark'); setShowChatSettings(false); }}
-                className={`chat-settings-option ${chatTheme === 'dark' ? 'selected' : ''}`}
-              >
-                🌙 Dark Theme
-              </button>
-              
-              <div className="chat-settings-divider" />
-              
-              <div className="chat-settings-section-title">Wallpaper</div>
-              <button 
-                onClick={() => bgInputRef.current?.click()}
-                className="chat-settings-option"
-              >
-                🖼️ Change Background Image
-              </button>
-              {chatBgImage && (
-                <button 
-                  onClick={() => { setChatBgImage(''); setShowChatSettings(false); }}
-                  className="chat-settings-option danger"
+              <div className="chat-settings-heading">
+                <strong>Chat appearance</strong>
+                <button
+                  className="chat-settings-close"
+                  onClick={() => setShowChatSettings(false)}
+                  aria-label="Close appearance settings"
                 >
-                  ✕ Remove Wallpaper
+                  <X size={16} />
                 </button>
-              )}
+              </div>
+
+              <div className="chat-settings-section">
+                <div className="chat-settings-section-title">THEME</div>
+                <div className="chat-theme-options">
+                  <button
+                    onClick={() => setChatTheme('light')}
+                    className={`chat-theme-option light ${chatTheme === 'light' ? 'selected' : ''}`}
+                    aria-pressed={chatTheme === 'light'}
+                  >
+                    <Sun size={17} />
+                    <span>Light</span>
+                    {chatTheme === 'light' && <Check size={15} />}
+                  </button>
+                  <button
+                    onClick={() => setChatTheme('dark')}
+                    className={`chat-theme-option dark ${chatTheme === 'dark' ? 'selected' : ''}`}
+                    aria-pressed={chatTheme === 'dark'}
+                  >
+                    <Moon size={17} />
+                    <span>Dark</span>
+                    {chatTheme === 'dark' && <Check size={15} />}
+                  </button>
+                </div>
+              </div>
+
+              <div className="chat-settings-divider" />
+
+              <div className="chat-settings-section">
+                <div className="chat-settings-section-title">WALLPAPER</div>
+                <button
+                  onClick={() => bgInputRef.current?.click()}
+                  className="chat-settings-option wallpaper-action"
+                >
+                  <ImageIcon size={17} />
+                  <span>{chatBgImage ? 'Change wallpaper' : 'Choose wallpaper'}</span>
+                </button>
+                {chatBgImage && (
+                  <>
+                    <label className="wallpaper-visibility-control" htmlFor="wallpaper-visibility">
+                      <span>Wallpaper visibility</span>
+                      <output htmlFor="wallpaper-visibility">{wallpaperVisibility}%</output>
+                      <input
+                        id="wallpaper-visibility"
+                        type="range"
+                        min="20"
+                        max="100"
+                        step="5"
+                        value={wallpaperVisibility}
+                        onChange={(event) => setWallpaperVisibility(Number(event.target.value))}
+                      />
+                    </label>
+                    <button
+                      onClick={() => setChatBgImage('')}
+                      className="chat-settings-option danger"
+                    >
+                      Remove wallpaper
+                    </button>
+                  </>
+                )}
+              </div>
             </div>
           )}
         </div>
@@ -871,7 +915,7 @@ export default function ChatBox({ socket, selectedChat, setSelectedChat, chats =
       <div 
         className={`messages-body ${chatBgImage ? 'has-wallpaper' : ''}`} 
         style={chatBgImage ? {
-          backgroundImage: `url(${chatBgImage})`,
+          backgroundImage: `linear-gradient(rgba(${chatTheme === 'dark' ? '13, 23, 32' : '245, 248, 247'}, ${(100 - wallpaperVisibility) / 100}), rgba(${chatTheme === 'dark' ? '13, 23, 32' : '245, 248, 247'}, ${(100 - wallpaperVisibility) / 100})), url(${chatBgImage})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat'

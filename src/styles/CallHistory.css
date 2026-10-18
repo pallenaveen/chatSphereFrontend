@@ -1,0 +1,168 @@
+/* src/styles/CallHistory.css */
+
+.call-history-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  backdrop-filter: blur(4px);
+}
+
+.call-history-modal {
+  width: 90%;
+  max-width: 480px;
+  max-height: 80vh;
+  background-color: #111b21; /* Dark theme matching WhatsApp */
+  color: #e9edef;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+  border: 1px solid #222e35;
+}
+
+.call-history-header {
+  padding: 16px 20px;
+  background-color: #202c33;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #222e35;
+}
+
+.call-history-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #e9edef;
+}
+
+.call-history-header .close-btn {
+  background: transparent;
+  border: none;
+  color: #aebac1;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 50%;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.call-history-header .close-btn:hover {
+  background-color: #374248;
+  color: #fff;
+}
+
+.call-history-list {
+  padding: 12px 16px;
+  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.loading-text,
+.no-calls {
+  text-align: center;
+  color: #8696a0;
+  padding: 32px 16px;
+  font-size: 14px;
+}
+
+.call-history-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background-color: #182229;
+  transition: background-color 0.2s;
+}
+
+.call-history-item:hover {
+  background-color: #202c33;
+}
+
+.call-history-action {
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 50%;
+  color: #00a884;
+  background: transparent;
+  cursor: pointer;
+  font-size: 17px;
+}
+
+.call-history-action:hover {
+  background-color: #374248;
+}
+
+.call-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  background-color: #00a884;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.call-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.call-avatar .letter-avatar {
+  color: #ffffff;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.call-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.call-details h4 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 500;
+  color: #e9edef;
+}
+
+.call-details p {
+  margin: 0;
+  font-size: 13px;
+  color: #8696a0;
+}
+
+/* Status Badges */
+.status-completed {
+  color: #00a884;
+  font-weight: 500;
+}
+
+.status-missed,
+.status-rejected {
+  color: #f15c6d;
+  font-weight: 500;
+}
+
+.status-outgoing {
+  color: #53bdeb;
+  font-weight: 500;
+}

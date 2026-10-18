@@ -213,6 +213,34 @@
   color: #667781;
 }
 
+.contact-bio {
+  width: min(100%, 320px);
+  margin-top: 18px;
+  padding: 14px 18px;
+  border: 1px solid #e5ecef;
+  border-radius: 14px;
+  background: #f6f9fa;
+  text-align: left;
+}
+
+.contact-bio > span {
+  display: block;
+  margin-bottom: 6px;
+  color: #71838e;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.contact-bio p {
+  margin: 0;
+  color: #263d4b;
+  font-size: 13.5px;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
 .drawer-divider {
   height: 10px;
   background-color: #f0f2f5;
@@ -525,6 +553,576 @@ body.theme-dark .drawer-close-btn:hover,
 body.theme-dark .group-profile-banner,
 .theme-dark .group-profile-banner {
   background-color: #111b21;
+}
+
+.chat-page-container.theme-dark .contact-bio {
+  border-color: #293b46;
+  background: #182733;
+}
+
+.chat-page-container.theme-dark .contact-bio > span {
+  color: #9aabb5;
+}
+
+.chat-page-container.theme-dark .contact-bio p {
+  color: #edf5f7;
+}
+
+/* Contact profile drawer */
+.contact-drawer-overlay {
+  z-index: 4000;
+  align-items: center;
+  justify-content: center;
+  background: rgba(10, 24, 34, 0.42);
+  backdrop-filter: blur(7px);
+}
+
+.contact-profile-drawer {
+  width: min(460px, calc(100vw - 48px));
+  max-width: 460px;
+  height: min(820px, calc(100dvh - 48px));
+  max-height: calc(100dvh - 48px);
+  border: 1px solid rgba(218, 231, 235, 0.85);
+  border-radius: 24px;
+  background: #f4f8f9;
+  box-shadow: 0 28px 90px rgba(13, 34, 47, 0.24);
+  overflow: hidden;
+  animation: contactProfileEnter 0.22s ease-out;
+}
+
+@keyframes contactProfileEnter {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.contact-drawer-header {
+  height: 76px;
+  min-height: 76px;
+  padding: 0 24px;
+  background: rgba(255, 255, 255, 0.94);
+  border-bottom-color: #e7eef0;
+}
+
+.contact-drawer-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.contact-drawer-title > div > span,
+.contact-card-heading > div > span {
+  display: block;
+  margin-bottom: 3px;
+  color: #78909a;
+  font-size: 9px;
+  font-weight: 750;
+  letter-spacing: 0.13em;
+}
+
+.contact-drawer-title h3 {
+  color: #193545;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+
+.contact-drawer-icon,
+.contact-card-icon {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  flex: 0 0 38px;
+  place-items: center;
+  border: 1px solid #dcece8;
+  border-radius: 12px;
+  color: #0b8d78;
+  background: #eaf6f2;
+}
+
+.contact-drawer-icon {
+  padding: 0;
+  cursor: pointer;
+  color: #58717d;
+  border-color: #e2eaed;
+  background: #f2f6f7;
+  transition: color 150ms ease, background-color 150ms ease, transform 150ms ease;
+}
+
+.contact-drawer-icon:hover {
+  color: #087967;
+  background: #e7f4f0;
+  transform: translateX(-1px);
+}
+
+.contact-profile-scroll {
+  display: flex;
+  min-height: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 14px;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+.contact-profile-hero {
+  position: relative;
+  padding: 30px 24px 22px;
+  overflow: hidden;
+  border: 1px solid #e0e9ec;
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at 90% 5%, rgba(24, 171, 143, 0.12), transparent 34%),
+    linear-gradient(155deg, #ffffff, #f5faf9);
+  box-shadow: 0 12px 32px rgba(30, 61, 74, 0.06);
+}
+
+.contact-profile-hero::before {
+  position: absolute;
+  top: -90px;
+  left: -75px;
+  width: 190px;
+  height: 190px;
+  border: 1px solid rgba(11, 155, 131, 0.1);
+  border-radius: 50%;
+  content: "";
+  pointer-events: none;
+}
+
+.contact-avatar-frame {
+  position: relative;
+  margin: 0 0 14px;
+}
+
+.contact-profile-hero .group-profile-avatar-wrapper {
+  width: 112px;
+  height: 112px;
+  margin: 0;
+  padding: 0;
+  border: 4px solid #ffffff;
+  cursor: default;
+  background: linear-gradient(140deg, #1cb497, #087967);
+  box-shadow: 0 10px 26px rgba(8, 121, 103, 0.2);
+  font-size: 40px;
+}
+
+.contact-profile-hero .group-profile-avatar-wrapper.has-photo {
+  cursor: zoom-in;
+  transition: transform 160ms ease, box-shadow 160ms ease;
+}
+
+.contact-profile-hero .group-profile-avatar-wrapper.has-photo:hover {
+  transform: scale(1.04);
+  box-shadow: 0 12px 30px rgba(8, 121, 103, 0.3);
+}
+
+.contact-profile-hero .group-profile-avatar-wrapper.has-photo:focus-visible {
+  outline: 3px solid #087967;
+  outline-offset: 3px;
+}
+
+.contact-avatar-lightbox {
+  position: fixed;
+  z-index: 5000;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 14px;
+  padding: 64px 24px 32px;
+  color: #ffffff;
+  background: rgba(5, 13, 19, 0.9);
+  backdrop-filter: blur(10px);
+  animation: drawerFadeIn 0.16s ease-out;
+}
+
+.contact-avatar-lightbox img {
+  display: block;
+  max-width: min(640px, calc(100vw - 48px), calc(100dvh - 150px));
+  max-height: min(640px, calc(100dvh - 150px));
+  object-fit: contain;
+  border-radius: 16px;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
+}
+
+.contact-avatar-lightbox > span {
+  max-width: calc(100vw - 48px);
+  overflow: hidden;
+  font-size: 15px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.contact-avatar-lightbox-close {
+  position: absolute;
+  top: max(20px, env(safe-area-inset-top));
+  right: max(20px, env(safe-area-inset-right));
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.12);
+  cursor: pointer;
+}
+
+.contact-avatar-lightbox-close:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.contact-online-indicator {
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  width: 19px;
+  height: 19px;
+  border: 4px solid #ffffff;
+  border-radius: 50%;
+  background: #94a5ab;
+}
+
+.contact-online-indicator.online {
+  background: #20b77b;
+  box-shadow: 0 0 0 4px rgba(32, 183, 123, 0.12);
+}
+
+.contact-title-row {
+  margin: 0 0 5px;
+}
+
+.contact-profile-hero .group-title-row h2 {
+  color: #193545;
+  font-size: 25px;
+  font-weight: 720;
+  letter-spacing: -0.04em;
+}
+
+.contact-presence {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0;
+  color: #72858f;
+  font-size: 12px;
+  font-weight: 550;
+}
+
+.contact-presence > span {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #a7b4b9;
+}
+
+.contact-presence.online {
+  color: #158361;
+}
+
+.contact-presence.online > span {
+  background: #20b77b;
+  box-shadow: 0 0 0 3px rgba(32, 183, 123, 0.12);
+}
+
+.contact-profile-hero .contact-bio {
+  width: 100%;
+  margin-top: 22px;
+  padding: 15px 16px;
+  border: 1px solid #e0e9eb;
+  border-radius: 15px;
+  background: rgba(248, 251, 251, 0.92);
+}
+
+.contact-section-label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 9px;
+  color: #69808a;
+  font-size: 10px;
+  font-weight: 750;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.contact-profile-hero .contact-bio p {
+  color: #314b59;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.contact-profile-loading,
+.contact-profile-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.contact-profile-loading svg,
+.contact-empty-state svg {
+  flex: 0 0 auto;
+}
+
+.contact-profile-loading svg {
+  animation: contactSpin 1s linear infinite;
+}
+
+@keyframes contactSpin {
+  to { transform: rotate(360deg); }
+}
+
+.contact-profile-hero .contact-bio .contact-profile-error {
+  color: #b64747;
+}
+
+.contact-info-card {
+  padding: 18px;
+  border: 1px solid #e2eaed;
+  border-radius: 18px;
+  background: #ffffff;
+  box-shadow: 0 8px 24px rgba(30, 61, 74, 0.045);
+}
+
+.contact-card-heading {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+.contact-card-heading h4 {
+  margin: 0;
+  color: #1d3a49;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.contact-email-value {
+  margin: 15px 0 0;
+  padding: 12px 13px;
+  border: 1px solid #eaf0f2;
+  border-radius: 11px;
+  color: #3b5360;
+  background: #f7f9fa;
+  font-size: 12.5px;
+  overflow-wrap: anywhere;
+}
+
+.contact-media-card {
+  min-height: 175px;
+}
+
+.contact-media-count {
+  display: grid;
+  width: 27px;
+  height: 27px;
+  place-items: center;
+  margin-left: auto;
+  border-radius: 9px;
+  color: #087967;
+  background: #eaf6f2;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.contact-shared-docs {
+  display: flex;
+  max-height: 260px;
+  flex-direction: column;
+  gap: 8px;
+  overflow-y: auto;
+  margin-top: 14px;
+}
+
+.contact-shared-doc {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border: 1px solid #e7eef0;
+  border-radius: 12px;
+  color: #087967;
+  background: #f8fbfb;
+  text-decoration: none;
+  transition: border-color 150ms ease, background-color 150ms ease, transform 150ms ease;
+}
+
+.contact-shared-doc:hover {
+  transform: translateY(-1px);
+  border-color: #b9ded4;
+  background: #f0f9f6;
+}
+
+.contact-shared-doc > span:last-child {
+  overflow: hidden;
+  font-size: 12px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.contact-file-icon {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+  place-items: center;
+  border-radius: 10px;
+  color: #0b8d78;
+  background: #e8f5f1;
+}
+
+.contact-empty-state {
+  display: flex;
+  min-height: 96px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 10px;
+  border: 1px dashed #dce7e9;
+  border-radius: 13px;
+  color: #82949b;
+  background: #fafcfc;
+  font-size: 12px;
+}
+
+.contact-empty-state p {
+  margin: 0;
+}
+
+.contact-profile-drawer .contact-empty-state:has(svg.lucide-loader-circle) {
+  flex-direction: row;
+  min-height: 52px;
+  border: 0;
+  background: transparent;
+}
+
+.chat-page-container.theme-dark .contact-profile-drawer {
+  border-color: #293b46;
+  background: #111d28;
+}
+
+.chat-page-container.theme-dark .contact-drawer-header,
+.chat-page-container.theme-dark .contact-info-card {
+  border-color: #293b46;
+  background: #172531;
+}
+
+.chat-page-container.theme-dark .contact-drawer-title h3,
+.chat-page-container.theme-dark .contact-card-heading h4,
+.chat-page-container.theme-dark .contact-profile-hero .group-title-row h2 {
+  color: #edf5f7;
+}
+
+.chat-page-container.theme-dark .contact-drawer-title > div > span,
+.chat-page-container.theme-dark .contact-card-heading > div > span {
+  color: #9aabb5;
+}
+
+.chat-page-container.theme-dark .contact-profile-hero {
+  border-color: #293b46;
+  background:
+    radial-gradient(circle at 90% 5%, rgba(57, 201, 168, 0.11), transparent 34%),
+    linear-gradient(155deg, #172733, #14232e);
+}
+
+.chat-page-container.theme-dark .contact-profile-hero .contact-bio {
+  border-color: #324650;
+  background: rgba(22, 39, 50, 0.9);
+}
+
+.chat-page-container.theme-dark .contact-section-label,
+.chat-page-container.theme-dark .contact-profile-hero .contact-bio p,
+.chat-page-container.theme-dark .contact-email-value {
+  color: #bdcbd0;
+}
+
+.chat-page-container.theme-dark .contact-profile-hero .contact-bio .contact-profile-error {
+  color: #ffaaa5;
+}
+
+.chat-page-container.theme-dark .contact-presence {
+  color: #a1b2b9;
+}
+
+.chat-page-container.theme-dark .contact-presence.online {
+  color: #74ddb9;
+}
+
+.chat-page-container.theme-dark .contact-email-value,
+.chat-page-container.theme-dark .contact-shared-doc,
+.chat-page-container.theme-dark .contact-empty-state {
+  border-color: #30434e;
+  background: #1b2d38;
+}
+
+.chat-page-container.theme-dark .contact-shared-doc {
+  color: #9de8d2;
+}
+
+.chat-page-container.theme-dark .contact-shared-doc:hover {
+  border-color: #39776a;
+  background: #203c3a;
+}
+
+.chat-page-container.theme-dark .contact-drawer-icon {
+  color: #b7c6ca;
+  border-color: #344853;
+  background: #20323d;
+}
+
+.chat-page-container.theme-dark .contact-drawer-icon:hover {
+  color: #f3f8f9;
+  background: #2a414d;
+}
+
+.chat-page-container.theme-dark .contact-drawer-icon:hover {
+  color: #9de8d2;
+}
+
+@media (max-width: 600px) {
+  .contact-profile-drawer {
+    width: 100%;
+    height: 100%;
+    max-height: 100dvh;
+    border: 0;
+    border-radius: 0;
+    animation: drawerSlideIn 0.25s cubic-bezier(0.1, 0.9, 0.2, 1);
+  }
+
+  .contact-drawer-header {
+    padding-right: max(18px, env(safe-area-inset-right));
+    padding-left: max(18px, env(safe-area-inset-left));
+  }
+
+  .contact-profile-scroll {
+    gap: 12px;
+    padding: 14px max(14px, env(safe-area-inset-right)) max(18px, env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left));
+  }
+
+  .contact-profile-hero {
+    padding: 26px 18px 19px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .contact-profile-drawer .contact-profile-loading svg {
+    animation: none;
+  }
+
+  .contact-shared-doc {
+    transition: none;
+  }
 }
 
 .chatbox-container.theme-dark ~ .group-drawer-overlay .group-title-row h2,

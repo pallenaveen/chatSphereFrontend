@@ -13,8 +13,12 @@ body {
   margin: 0;
   padding: 0;
   overflow: hidden;
-  background-color: #0b141a; /* WhatsApp Web outer background */
+  background-color: #edf3f5;
   font-family: var(--font-sans, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif);
+}
+
+body:has(.chat-page-container.theme-dark) {
+  background-color: #09131b;
 }
 
 #root {
@@ -27,17 +31,72 @@ body {
 
 /* Central Application Container (Desktop Window) */
 .chat-page-container {
+  --bg-sidebar: #f7f9fb;
+  --bg-header: #ffffff;
+  --bg-card: #ffffff;
+  --bg-card-hover: #eef8f5;
+  --bg-input: #f4f7f9;
+  --bg-menu: #ffffff;
+  --border-color: #e5ecef;
+  --border-input: #dce6e9;
+  --text-primary: #172b3a;
+  --text-secondary: #6b7d89;
+  --text-icon: #607480;
+  --accent-primary: #0b9b83;
+  --accent-online: #17a673;
+  --hover-overlay: rgba(15, 42, 53, 0.06);
+  --shadow-menu: 0 18px 52px rgba(26, 51, 64, 0.18);
+  --app-surface: #ffffff;
+  --app-muted-surface: #f4f7f9;
+  --app-border: #e3ebef;
+  --app-text: #172b3a;
+  --app-muted: #6b7d89;
+  --app-accent: #0b9b83;
+  --app-accent-soft: #e6f5f1;
   display: flex;
-  width: min(100% - 38px, 1680px);
-  height: min(100% - 38px, 960px);
+  width: min(100% - 48px, 1720px);
+  height: min(100% - 48px, 1040px);
   min-height: 0;
   overflow: hidden;
   position: relative;
-  background: #ffffff;
-  border: 1px solid #dce2e5;
-  border-radius: 12px;
-  box-shadow: 0 16px 48px rgba(17, 27, 33, 0.18);
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: 22px;
+  box-shadow: 0 28px 80px rgba(27, 51, 62, 0.16);
   transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.chat-page-container.theme-dark {
+  color-scheme: dark;
+  --bg-sidebar: #111d28;
+  --bg-header: #172531;
+  --bg-card: #15232e;
+  --bg-card-hover: #1d2e3a;
+  --bg-input: #101b25;
+  --bg-menu: #192833;
+  --border-color: #283943;
+  --border-input: #334651;
+  --text-primary: #edf5f7;
+  --text-secondary: #9aabb5;
+  --text-icon: #a8b8c0;
+  --accent-primary: #39c9a8;
+  --accent-online: #49d69e;
+  --hover-overlay: rgba(235, 247, 250, 0.08);
+  --shadow-menu: 0 18px 52px rgba(0, 0, 0, 0.42);
+  --app-surface: #111d28;
+  --app-muted-surface: #182733;
+  --app-border: #293b46;
+  --app-text: #edf5f7;
+  --app-muted: #9aabb5;
+  --app-accent: #39c9a8;
+  --app-accent-soft: #1d403c;
+  background: #0d1720;
+  border-color: #293b46;
+  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.42);
+}
+
+.chat-page-container.theme-light {
+  color-scheme: light;
 }
 
 /* Sidebar Section Container */
@@ -46,7 +105,7 @@ body {
   width: clamp(290px, 28vw, 380px);
   min-width: 0;
   height: 100%;
-  border-right: 1px solid #e3eaee;
+  border-right: 1px solid var(--app-border);
 }
 
 /* Chatbox Section Container */
@@ -151,13 +210,220 @@ body {
    ========================================================== */
 
 .chat-page-container.theme-dark {
-  background: #0b141a;
-  border-color: #222d34;
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
+  background: #0d1720;
 }
 
 .chat-page-container.theme-dark .sidebar-container {
-  border-right-color: #222d34;
+  border-right-color: var(--app-border);
+}
+
+/* Shared surfaces used by dialogs and drawers inside the themed app shell. */
+.chat-page-container .modal-content,
+.chat-page-container .settings-modal-content,
+.chat-page-container .call-history-modal {
+  color: var(--app-text);
+  background: var(--app-surface);
+  border-color: var(--app-border);
+  box-shadow: 0 24px 70px rgba(23, 43, 58, 0.22);
+}
+
+.chat-page-container .modal-header,
+.chat-page-container .settings-header,
+.chat-page-container .call-history-header {
+  background: var(--app-muted-surface);
+  border-color: var(--app-border);
+}
+
+.chat-page-container .modal-header h3,
+.chat-page-container .call-history-header h3 {
+  color: var(--app-text);
+}
+
+.chat-page-container .settings-header h2 {
+  color: var(--app-text);
+}
+
+.chat-page-container .settings-desc,
+.chat-page-container .current-ringtone-label {
+  color: var(--app-muted);
+}
+
+.chat-page-container.theme-dark .modal-header,
+.chat-page-container.theme-dark .settings-header,
+.chat-page-container.theme-dark .call-history-header {
+  background: var(--bg-header);
+  border-color: var(--app-border);
+}
+
+.chat-page-container.theme-dark .modal-header h3,
+.chat-page-container.theme-dark .settings-header h2,
+.chat-page-container.theme-dark .call-history-header h3,
+.chat-page-container.theme-dark .call-details h4,
+.chat-page-container.theme-dark .settings-section h3,
+.chat-page-container.theme-dark .group-drawer-header h3,
+.chat-page-container.theme-dark .group-title-row h2,
+.chat-page-container.theme-dark .member-name,
+.chat-page-container.theme-dark .add-member-name,
+.chat-page-container.theme-dark .drawer-description-text,
+.chat-page-container.theme-dark .no-contacts-text {
+  color: var(--app-text);
+}
+
+.chat-page-container.theme-dark .modal-text-input,
+.chat-page-container.theme-dark .user-selection-list,
+.chat-page-container.theme-dark .ringtone-card {
+  color: var(--app-text);
+  background: var(--app-muted-surface);
+  border-color: var(--app-border);
+}
+
+.chat-page-container.theme-dark .user-select-name,
+.chat-page-container.theme-dark .settings-desc,
+.chat-page-container.theme-dark .call-details p,
+.chat-page-container.theme-dark .current-ringtone-label,
+.chat-page-container.theme-dark .user-select-sub {
+  color: var(--app-muted);
+}
+
+.chat-page-container.theme-dark .group-drawer-content,
+.chat-page-container.theme-dark .group-profile-banner {
+  color: var(--app-text);
+  background: var(--app-surface);
+}
+
+.chat-page-container.theme-dark .drawer-divider,
+.chat-page-container.theme-dark .member-list-item:hover,
+.chat-page-container.theme-dark .add-member-item,
+.chat-page-container.theme-dark .call-history-item {
+  background: var(--app-muted-surface);
+  border-color: var(--app-border);
+}
+
+.chat-page-container.theme-dark .group-drawer-header {
+  background: var(--bg-header);
+  border-color: var(--app-border);
+}
+
+.chat-page-container.theme-light .call-history-modal {
+  color: var(--app-text);
+  background: var(--app-surface);
+}
+
+.chat-page-container.theme-light .call-history-header,
+.chat-page-container.theme-light .call-history-item {
+  background: var(--app-muted-surface);
+  border-color: var(--app-border);
+}
+
+.chat-page-container.theme-light .call-history-header h3,
+.chat-page-container.theme-light .call-details h4 {
+  color: var(--app-text);
+}
+
+.chat-page-container.theme-light .call-details p,
+.chat-page-container.theme-light .loading-text,
+.chat-page-container.theme-light .no-calls {
+  color: var(--app-muted);
+}
+
+/* Keep the conversation pane in the same slate-and-jade palette as the shell. */
+.chat-page-container.theme-light .chatbox-container {
+  color: #172b3a;
+  background-color: #f1f6f6;
+}
+
+.chat-page-container.theme-light .chatbox-container.no-chat-selected {
+  background: radial-gradient(circle at 50% 42%, rgba(11, 155, 131, 0.09), transparent 46%), #f5f8f9;
+}
+
+.chat-page-container.theme-light .chat-header,
+.chat-page-container.theme-light .chat-input-form {
+  color: #172b3a;
+  background-color: #f8fafb;
+  border-color: #e3ebef;
+}
+
+.chat-page-container.theme-light .messages-body {
+  background-color: #eaf0f2;
+}
+
+.chat-page-container.theme-light .message-bubble.mine {
+  color: #123b35;
+  background-color: #c9efe3;
+  border: 1px solid #b4e5d7;
+  box-shadow: 0 2px 5px rgba(25, 67, 59, 0.07);
+}
+
+.chat-page-container.theme-light .message-bubble.other {
+  color: #1c3440;
+  background-color: #ffffff;
+  border: 1px solid #e0e8eb;
+  box-shadow: 0 2px 5px rgba(25, 52, 64, 0.06);
+}
+
+.chat-page-container.theme-light .chat-input-form input[type="text"] {
+  color: #172b3a;
+  border-color: #dce6e9;
+}
+
+.chat-page-container.theme-dark .chatbox-container {
+  color: #edf5f7;
+  background-color: #0d1720;
+}
+
+.chat-page-container.theme-dark .chatbox-container.no-chat-selected {
+  background: radial-gradient(circle at 50% 42%, rgba(57, 201, 168, 0.1), transparent 46%), #0d1720;
+}
+
+.chat-page-container.theme-dark .chat-header,
+.chat-page-container.theme-dark .chat-input-form {
+  color: #edf5f7;
+  background-color: #172531;
+  border-color: #293b46;
+}
+
+.chat-page-container.theme-dark .chat-header-info h3,
+.chat-page-container.theme-dark .welcome-box h2 {
+  color: #edf5f7;
+}
+
+.chat-page-container.theme-dark .group-subtitle,
+.chat-page-container.theme-dark .welcome-box p,
+.chat-page-container.theme-dark .status-label.offline {
+  color: #9aabb5;
+}
+
+.chat-page-container.theme-dark .messages-body {
+  background-color: #0d1720;
+}
+
+.chat-page-container.theme-dark .message-bubble.mine {
+  color: #edf5f7;
+  background-color: #075f52;
+}
+
+.chat-page-container.theme-dark .message-bubble.other {
+  color: #edf5f7;
+  background-color: #1d2b37;
+}
+
+.chat-page-container.theme-dark .chat-input-form input[type="text"] {
+  color: #edf5f7;
+  background-color: #21323e;
+  border-color: #334651;
+}
+
+.chat-page-container.theme-dark .chat-input-form input[type="text"]::placeholder {
+  color: #9aabb5;
+}
+
+.chat-page-container.theme-dark .chat-settings-trigger {
+  color: #a8b8c0;
+}
+
+.chat-page-container.theme-dark .chat-settings-trigger:hover {
+  color: #39c9a8;
+  background-color: rgba(235, 247, 250, 0.08);
 }
 
 .whatsapp-toast-notification.theme-dark {
@@ -203,6 +469,10 @@ body {
     box-shadow: none;
   }
 
+  .chat-page-container.theme-dark {
+    background: #0d1720;
+  }
+
   /* Single-pane dynamic view switching on mobile */
   .chat-page-container:not(.chat-selected) .sidebar-container {
     display: flex;
@@ -210,6 +480,16 @@ body {
     min-width: 0;
     max-width: none;
     border-right: 0;
+  }
+
+  @media (max-width: 520px) {
+    .chat-page-container .modal-content,
+    .chat-page-container .settings-modal-content,
+    .chat-page-container .call-history-modal {
+      width: calc(100% - 28px);
+      max-height: min(84dvh, 720px);
+      border-radius: 20px;
+    }
   }
 
   .chat-page-container:not(.chat-selected) .chatbox-container {

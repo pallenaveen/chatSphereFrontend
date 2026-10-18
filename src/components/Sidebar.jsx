@@ -15,13 +15,15 @@ export default function Sidebar({
   chatTheme,
   setChatTheme,
   onOpenCreateGroup,
-  onStartCall, // <-- Injected call handler prop from ChatPage
+  onStartCall,
+  onOpenCallHistory, // 📞 Added prop for opening call history
 }) {
   const { currentUser, logoutUser, setCurrentUser } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
   const [activeChatMenuId, setActiveChatMenuId] = useState(null);
+  const [chatMenuPosition, setChatMenuPosition] = useState(null);
 
   // Settings Dropdown State
   const [showSettingsMenu, setShowSettingsMenu] = useState(false);
@@ -33,7 +35,7 @@ export default function Sidebar({
   const [isEditingUsername, setIsEditingUsername] = useState(false);
   const [newUsername, setNewUsername] = useState('');
   const [statusMessage, setStatusMessage] = useState(() => {
-    return localStorage.getItem('user_status') || 'Available';
+    return currentUser?.bio || '';
   });
   const [isEditingStatus, setIsEditingStatus] = useState(false);
   const [newStatus, setNewStatus] = useState('');
@@ -50,7 +52,6 @@ export default function Sidebar({
   const currentUsername = currentUser?.username || currentUser?.user?.username || currentUser?.name || 'User';
   const currentAvatar = currentUser?.avatar || currentUser?.user?.avatar || '';
 
-  // Load initial chats from localStorage cache on mount
   useEffect(() => {
     const cachedChats = localStorage.getItem('cached_chats');
     if (cachedChats) {
@@ -62,14 +63,12 @@ export default function Sidebar({
     }
   }, [setChats]);
 
-  // Save chats to localStorage whenever they update
   useEffect(() => {
     if (chats.length > 0) {
       localStorage.setItem('cached_chats', JSON.stringify(chats));
     }
   }, [chats]);
 
-  // Listen for real-time group additions so they appear instantly without refresh
   useEffect(() => {
     const handleNewGroup = (event) => {
       const newGroup = event.detail;
@@ -87,7 +86,6 @@ export default function Sidebar({
     };
   }, [setChats]);
 
-  // Listen for real-time unread messages
   useEffect(() => {
     const handleUnreadEvent = (e) => {
       const { chatId } = e.detail;
@@ -192,7 +190,6 @@ export default function Sidebar({
     }
   };
 
-  // Toggle Favorite Status for a Chat
   const handleToggleFavorite = async (e, chat) => {
     e.stopPropagation();
     setActiveChatMenuId(null);
@@ -266,13 +263,32 @@ export default function Sidebar({
     }
   };
 
-  const handleUpdateStatus = (e) => {
+  const handleUpdateStatus = async (e) => {
     e.preventDefault();
-    if (!newStatus.trim()) return;
-    setStatusMessage(newStatus.trim());
-    localStorage.setItem('user_status', newStatus.trim());
-    setIsEditingStatus(false);
-    setNewStatus('');
+    const bio = newStatus.trim();
+    if (bio.length > 139) {
+      alert('Bio cannot exceed 139 characters.');
+      return;
+    }
+
+    try {
+      const { data } = await API.put('/users/profile', { bio });
+      if (data.bio !== bio) {
+        throw new Error('The server did not confirm the bio update. Restart the backend and try again.');
+      }
+      const savedBio = data.bio;
+      setStatusMessage(savedBio);
+      setCurrentUser((prev) => prev ? {
+        ...prev,
+        bio: savedBio,
+        user: prev.user ? { ...prev.user, bio: savedBio } : undefined,
+      } : prev);
+      setIsEditingStatus(false);
+      setNewStatus('');
+    } catch (err) {
+      console.error('Failed to update bio:', err);
+      alert(err.response?.data?.message || err.message || 'Could not update your bio. Please try again.');
+    }
   };
 
   const handleImageChange = async (e) => {
@@ -316,13 +332,12 @@ export default function Sidebar({
            messageDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); 
   };
 
-  // Filter Logic for All, Unread, Favorites, Groups, and Calls
   const filteredChats = chats.filter((chat) => {
     if (activeFilter === 'Unread') return (unreadCounts[chat._id] || 0) > 0;
     if (activeFilter === 'Favorites') return chat.isFavorite === true;
     if (activeFilter === 'Groups') return chat.isGroup === true;
-    if (activeFilter === 'Calls') return !chat.isGroup; // 1-on-1 chats available for calls
-    return true; // 'All'
+    if (activeFilter === 'Calls') return !chat.isGroup;
+    return true;
   });
 
   return (
@@ -333,7 +348,6 @@ export default function Sidebar({
         setShowSettingsMenu(false); 
       }}
     >
-      {/* Sidebar Header */}
       <div className="sidebar-header">
         <div className="sidebar-top-row">
           <input
@@ -346,7 +360,6 @@ export default function Sidebar({
 
           <h2 className="app-brand-title">ChatSphere</h2>
 
-          {/* Settings Trigger & Dropdown Menu */}
           <div className="sidebar-settings-wrapper" onClick={(e) => e.stopPropagation()}>
             <button 
               className={`icon-action-btn ${showSettingsMenu ? 'active' : ''}`}
@@ -358,7 +371,6 @@ export default function Sidebar({
               </svg>
             </button>
 
-            {/* Settings Dropdown Drawer */}
             {showSettingsMenu && (
               <div className="sidebar-settings-dropdown">
                 <div className="settings-profile-card">
@@ -375,13 +387,52 @@ export default function Sidebar({
                   </div>
                   <div className="settings-user-info">
                     <h4>{currentUsername}</h4>
-                    <span className="settings-status-text">"{statusMessage}"</span>
+                    <span className="settings-status-text">
+                      {statusMessage ? `"${statusMessage}"` : 'Add a short bio'}
+                    </span>
                   </div>
                 </div>
 
                 <div className="settings-divider" />
 
-                {/* Create New Group Option */}
+                <div className="settings-menu-item" style={{ flexDirection: 'column', alignItems: 'flex-start', cursor: 'default' }}>
+                  <span style={{ fontSize: '13px', fontWeight: '500', marginBottom: '4px' }}>🔔 Call Ringtone</span>
+                  <label 
+                    htmlFor="sidebar-ringtone-input" 
+                    style={{ 
+                      backgroundColor: '#00a884', 
+                      color: '#fff', 
+                      padding: '4px 10px', 
+                      borderRadius: '12px', 
+                      fontSize: '11px', 
+                      cursor: 'pointer',
+                      display: 'inline-block'
+                    }}
+                  >
+                    📁 Change Ringtone
+                  </label>
+                  <input 
+                    id="sidebar-ringtone-input" 
+                    type="file" 
+                    accept="audio/*" 
+                    onChange={(e) => {
+                      const file = e.target.files[0];
+                      if (file) {
+                        const reader = new FileReader();
+                        reader.onload = (uploadEvent) => {
+                          localStorage.setItem('chatsphere_custom_ringtone', uploadEvent.target.result);
+                          alert('Custom ringtone saved successfully!');
+                          setShowSettingsMenu(false);
+                        };
+                        reader.readAsDataURL(file);
+                      }
+                    }} 
+                    style={{ display: 'none' }} 
+                  />
+                </div>
+
+                <div className="settings-divider" />
+
                 <button 
                   className="settings-menu-item"
                   onClick={() => {
@@ -390,6 +441,17 @@ export default function Sidebar({
                   }}
                 >
                   👥 Create New Group
+                </button>
+
+                {/* 📞 Call History Option in Dropdown */}
+                <button 
+                  className="settings-menu-item"
+                  onClick={() => {
+                    setShowSettingsMenu(false);
+                    if (onOpenCallHistory) onOpenCallHistory();
+                  }}
+                >
+                  📞 View Call Logs
                 </button>
 
                 <div className="settings-divider" />
@@ -419,8 +481,9 @@ export default function Sidebar({
                   <form onSubmit={handleUpdateStatus} className="settings-inline-form">
                     <input
                       type="text"
+                      maxLength={139}
                       value={newStatus}
-                      placeholder={statusMessage}
+                      placeholder={statusMessage || 'Add a short bio'}
                       onChange={(e) => setNewStatus(e.target.value)}
                       autoFocus
                     />
@@ -440,7 +503,7 @@ export default function Sidebar({
                   className="settings-menu-item"
                   onClick={() => fileInputRef.current?.click()}
                 >
-                  🖼️ Change Profile Photo
+                  🕵 Change Profile Photo
                 </button>
 
                 {setChatTheme && (
@@ -458,14 +521,13 @@ export default function Sidebar({
                   className="settings-menu-item danger" 
                   onClick={logoutUser}
                 >
-                  🚪 Logout
+                  ➜] Logout
                 </button>
               </div>
             )}
           </div>
         </div>
 
-        {/* Search Bar */}
         <div className="search-bar-form">
           <div className="search-input-wrapper">
             <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" className="search-icon">
@@ -485,14 +547,19 @@ export default function Sidebar({
           </div>
         </div>
 
-        {/* Filter Pills Row (Added 'Calls') */}
         {!isSearching && (
           <div className="filter-pills-row">
             {['All', 'Unread', 'Favorites', 'Groups', 'Calls'].map((filterName) => (
               <button
                 key={filterName}
                 className={`filter-pill ${activeFilter === filterName ? 'active' : ''}`}
-                onClick={() => setActiveFilter(filterName)}
+                onClick={() => {
+                  setActiveFilter(filterName);
+                  // 📞 Open Call History Modal when clicking the Calls pill
+                  if (filterName === 'Calls' && onOpenCallHistory) {
+                    onOpenCallHistory();
+                  }
+                }}
               >
                 {filterName === 'Calls' ? '📞 Calls' : filterName}
               </button>
@@ -501,8 +568,15 @@ export default function Sidebar({
         )}
       </div>
 
-      {/* Chat List */}
-      <div className="chat-list">
+      <div
+        className="chat-list"
+        onScroll={() => {
+          if (activeChatMenuId) {
+            setActiveChatMenuId(null);
+            setChatMenuPosition(null);
+          }
+        }}
+      >
         {isSearching ? (
           <div className="search-results-section">
             <div className="section-title">Search Results</div>
@@ -542,6 +616,7 @@ export default function Sidebar({
               const unreadCount = unreadCounts[chat._id] || 0;
               const partner = chat.members?.find((m) => extractId(m) !== currentUserId);
               const targetUserId = partner?._id || partner?.id || partner;
+              const partnerAvatar = partner?.avatar || '';
 
               return (
                 <div
@@ -549,7 +624,6 @@ export default function Sidebar({
                   className={`chat-item ${isSelected ? 'active' : ''}`}
                   onClick={() => handleSelectChat(chat)}
                 >
-                  {/* Avatar Render */}
                   <div className="chat-avatar" style={{ overflow: 'hidden' }}>
                     {chat.isGroup ? (
                       chat.avatar ? (
@@ -587,12 +661,11 @@ export default function Sidebar({
                     </div>
                   </div>
 
-                  {/* If activeFilter is Calls, show direct voice/video call buttons instead of standard options */}
                   {activeFilter === 'Calls' && !chat.isGroup ? (
                     <div className="chat-item-options-wrapper" onClick={(e) => e.stopPropagation()} style={{ display: 'flex', gap: '6px' }}>
                       <button
                         onClick={() => {
-                          if (onStartCall) onStartCall(targetUserId, 'audio');
+                          if (onStartCall) onStartCall(targetUserId, 'audio', partnerAvatar);
                         }}
                         title="Voice Call"
                         style={{
@@ -613,7 +686,7 @@ export default function Sidebar({
                       </button>
                       <button
                         onClick={() => {
-                          if (onStartCall) onStartCall(targetUserId, 'video');
+                          if (onStartCall) onStartCall(targetUserId, 'video', partnerAvatar);
                         }}
                         title="Video Call"
                         style={{
@@ -634,19 +707,40 @@ export default function Sidebar({
                       </button>
                     </div>
                   ) : (
-                    /* Context Menu Three Dots for regular filters */
                     <div className="chat-item-options-wrapper" onClick={(e) => e.stopPropagation()}>
                       <button
                         className="chat-item-options-trigger"
                         onClick={(e) => {
                           e.stopPropagation();
-                          setActiveChatMenuId(activeChatMenuId === chat._id ? null : chat._id);
+                          if (activeChatMenuId === chat._id) {
+                            setActiveChatMenuId(null);
+                            setChatMenuPosition(null);
+                            return;
+                          }
+                          const bounds = e.currentTarget.getBoundingClientRect();
+                          const menuHeight = 144;
+                          const top = bounds.bottom + menuHeight < window.innerHeight
+                            ? bounds.bottom + 6
+                            : Math.max(12, bounds.top - menuHeight - 6);
+                          setChatMenuPosition({
+                            top,
+                            right: Math.max(12, window.innerWidth - bounds.right),
+                          });
+                          setActiveChatMenuId(chat._id);
                         }}
+                        aria-label={`Options for ${getChatName(chat)}`}
+                        aria-expanded={activeChatMenuId === chat._id}
                       >
                         ⋮
                       </button>
                       {activeChatMenuId === chat._id && (
-                        <div className="chat-dropdown-menu">
+                        <div
+                          className="chat-dropdown-menu"
+                          style={chatMenuPosition ? {
+                            top: `${chatMenuPosition.top}px`,
+                            right: `${chatMenuPosition.right}px`,
+                          } : undefined}
+                        >
                           <button onClick={(e) => handleToggleFavorite(e, chat)}>
                             {chat.isFavorite ? '★ Remove Favorite' : '☆ Add to Favorites'}
                           </button>
