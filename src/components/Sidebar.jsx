@@ -54,19 +54,54 @@ export default function Sidebar({
   const currentAvatar = currentUser?.avatar || currentUser?.user?.avatar || '';
 
   useEffect(() => {
-    const cachedChats = localStorage.getItem(cachedChatsKey);
-    if (cachedChats) {
-      try {
+    try {
+      const cachedChats = localStorage.getItem(cachedChatsKey);
+      if (cachedChats) {
         setChats(JSON.parse(cachedChats));
-      } catch (e) {
-        console.error('Failed to parse cached chats:', e);
       }
+    } catch (error) {
+      console.error('Failed to load cached chats:', error);
     }
   }, [cachedChatsKey, setChats]);
 
   useEffect(() => {
-    if (chats.length > 0) {
-      localStorage.setItem(cachedChatsKey, JSON.stringify(chats));
+    if (chats.length === 0) return;
+
+    const cacheableChats = chats.map((chat) => {
+      const latestContent = chat.latestMessage?.content;
+      const preview = typeof latestContent === 'string' && latestContent.length <= 160
+        && !/^data:(image|audio|video)\//i.test(latestContent)
+        ? latestContent
+        : latestContent
+          ? 'Attachment'
+          : '';
+
+      return {
+        _id: chat._id,
+        chatName: chat.chatName,
+        isGroup: chat.isGroup,
+        isFavorite: chat.isFavorite,
+        updatedAt: chat.updatedAt,
+        members: chat.members?.map((member) => (
+          member && typeof member === 'object'
+            ? { _id: member._id || member.id || String(member), username: member.username, name: member.name }
+            : member
+        )),
+        latestMessage: chat.latestMessage
+          ? { content: preview, createdAt: chat.latestMessage.createdAt }
+          : null,
+      };
+    });
+
+    try {
+      localStorage.setItem(cachedChatsKey, JSON.stringify(cacheableChats));
+    } catch (error) {
+      console.warn('Unable to cache chats in browser storage:', error);
+      try {
+        localStorage.removeItem(cachedChatsKey);
+      } catch (cleanupError) {
+        console.warn('Unable to clear the old chat cache:', cleanupError);
+      }
     }
   }, [cachedChatsKey, chats]);
 
