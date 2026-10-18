@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { io } from 'socket.io-client';
+import { SERVER_URL } from '../config';
 
 const SocketContext = createContext();
 
@@ -29,7 +30,7 @@ export const SocketProvider = ({ children, currentUser }) => {
       return;
     }
 
-    const newSocket = io('http://localhost:5000', {
+    const newSocket = io(SERVER_URL, {
       reconnectionAttempts: 5,
       timeout: 10000,
     });

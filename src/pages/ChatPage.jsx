@@ -9,9 +9,8 @@ import CallModal from '../components/CallModal';
 import SettingsModal from '../components/SettingsModal';
 import CallHistoryModal from '../components/CallHistoryModal'; // 📞 Import Call History Modal
 import API from '../api/axios';
+import { SERVER_URL } from '../config';
 import '../styles/ChatPage.css';
-
-const ENDPOINT = 'http://localhost:5000';
 
 export default function ChatPage() {
   const { currentUser } = useAuth();
@@ -115,7 +114,7 @@ export default function ChatPage() {
   useEffect(() => {
     if (!currentUserId) return;
 
-    const newSocket = io(ENDPOINT);
+    const newSocket = io(SERVER_URL);
     setSocket(newSocket);
 
     newSocket.on('connect', () => {
